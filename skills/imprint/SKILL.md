@@ -3,13 +3,9 @@ name: imprint
 description: After building any UI component, extract the visual patterns that matter for consistency and save them to ui-registry.md. So every component built after this one matches what came before.
 ---
 
-UI consistency does not happen by accident. It happens because every component is built with awareness of what already exists.
+UI consistency happens when every component is built with awareness of what already exists. Run this after building any UI component to extract patterns and save them to `ui-registry.md`.
 
-The problem with AI-built interfaces is that each component gets built in isolation. The agent does not remember what it built three sessions ago. So spacing drifts. Colors vary slightly. Border radius is inconsistent. The app looks like it was built by multiple people with different tastes.
-
-This skill fixes that. Run it after building any UI component. It reads what was just built, extracts the patterns that matter for consistency, and saves them so every future component can match.
-
-One command. Run it every time. That is the whole system.
+One command. Run it every time.
 
 ---
 
@@ -81,7 +77,7 @@ Read the component code. Extract only the classes and values that affect visual 
 - Width and height — too context-dependent to be a consistency rule
 - Flex and grid layout — structural, not visual
 - Positioning — absolute, relative, z-index — context-dependent
-- Animation and transition timing — unless it is a pattern worth enforcing
+- Animation and transition timing — only extract if the same timing values appear in 3+ components (indicating a deliberate pattern)
 - Responsive breakpoint variants — capture the base pattern only
 
 ---
@@ -93,6 +89,8 @@ Open `ui-registry.md`. If it does not exist, create it.
 Add a new entry for the component that was captured. Do not overwrite existing entries — append to the registry.
 
 If an entry for this component type already exists — update it rather than duplicating.
+
+If the new component uses significantly different values than what the registry already contains, do not silently overwrite. Flag the conflict and ask: "This component uses [different values] while the registry says [existing values]. Which should win?" Let the developer decide before updating.
 
 ### Entry format
 
@@ -146,28 +144,6 @@ If anything looked inconsistent or surprising during extraction — flag it:
 Note: [Something that looked inconsistent or worth the
 developer knowing about]
 ```
-
----
-
-## How ui-registry.md Gets Used
-
-The registry is not just a record. It is the consistency enforcer for every future session.
-
-At the start of any session that involves UI work, the agent reads ui-registry.md before writing any component. When building a new card, it checks how existing cards were built. When building a new button, it checks what button patterns already exist. When building a new status badge, it matches the exact classes already in use.
-
-The registry grows as the project grows. The more components are imprinted, the more consistent every new component becomes — because the agent always has a precise reference for what already exists.
-
----
-
-## The Rule
-
-Build a component. Run `/imprint`. Move on.
-
-Every time. Without exception.
-
-A registry with ten entries is useful. A registry with thirty entries is powerful. A registry that is sometimes updated is unreliable.
-
-Consistency is a habit, not a feature.
 
 ---
 
@@ -277,4 +253,4 @@ and should be updated:
 - [Component file] — [what is wrong] → [what it should be]
 ```
 
-The developer can now fix these systematically — or fix them as they encounter each component. Either way, the baseline is established and `/imprint` can be used going forward to keep new components consistent.
+The developer can now fix these systematically — or fix them as they encounter each component. If the developer asks you to apply the fixes, run `/imprint` after each fix to update the registry. Either way, the baseline is established and `/imprint` can be used going forward to keep new components consistent.

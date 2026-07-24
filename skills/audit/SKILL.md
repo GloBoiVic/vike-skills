@@ -26,9 +26,33 @@ To scope the audit to specific areas:
 /audit path/to/dir   # Specific directory
 ```
 
+## How to Scan Efficiently
+
+The checklists below cover 40+ categories. Do not read every file in the codebase — use targeted strategies:
+
+- **Secrets and credentials** — use regex search for patterns (`sk-`, `-----BEGIN`, `token`, `secret`, `password =`, `api_key`). Check `.env` files and lock files, not every source file.
+- **Dependencies** — read lock files (`package-lock.json`, `requirements.txt`, `Cargo.lock`, `Gemfile.lock`). Do not scan source for dependency issues.
+- **Injection and XSS** — grep for known dangerous patterns (`innerHTML`, `dangerouslySetInnerHTML`, raw SQL interpolation, `exec(`). Do not read every route handler.
+- **Auth and authorization** — check route definitions and middleware files. Pattern-match for missing guards on protected routes.
+- **Performance (N+1, queries)** — grep for loops containing DB calls, check ORM usage patterns in data-fetching code.
+- **Bundle and build** — read config files (webpack, vite, next.config, etc.) and a sample page/component per directory.
+- **Configuration and headers** — check a single server/HTTP config file rather than scanning source.
+- **For each category**, validate suspected findings before reporting. A matched pattern is not always a real issue.
+
+If you cannot confidently check a category without reading an unreasonable amount of code, flag it as "needs manual review" rather than skipping it silently.
+
+### False Positive Discipline
+
+Audits inevitably produce findings that are not real issues. Follow these rules:
+
+- **Be conservative.** If you are not sure something is a real issue, label it "Unconfirmed — investigation needed" rather than asserting it as a finding.
+- **Validate before reporting.** A regex match for "password" in a test fixture is not a secret leak. Read the surrounding context before flagging.
+- **When uncertain, lean toward flagging but label the uncertainty.** "Possible hardcoded key — verify this is not a test value." The developer can triage faster than the agent can investigate every match.
+- **Distinguish between categories:** a testing-only credential in test code is Minor. A production credential is Critical. Apply the severity guide honestly.
+
 ## Phase 1 — Security
 
-Scan the entire codebase. For each finding, report the file, line, and severity.
+Scan for security issues. For each finding, report the file, line, and severity.
 
 ### What to check
 
@@ -92,8 +116,10 @@ Scan the entire codebase. For each finding, report the file, line, and severity.
 
 ### Report format
 
+Every phase uses the same format. Report findings with file, line, and severity:
+
 ```
-## Security Findings
+## [Phase Name] Findings
 
 ### Critical
 - [file:line] — [issue description with evidence]
@@ -150,18 +176,7 @@ Scan the codebase for performance issues. Report with severity and estimated imp
 
 ### Report format
 
-```
-## Performance Findings
-
-### Critical
-- [file:line] — [issue description + estimated impact]
-
-### Important
-- [file:line] — [issue description + estimated impact]
-
-### Minor
-- [file:line] — [issue description + estimated impact]
-```
+Use the same format from Phase 1 — section heading, then Critical / Important / Minor with severity and impact.
 
 ---
 
@@ -214,18 +229,7 @@ Scan the codebase for violations of common engineering best practices.
 
 ### Report format
 
-```
-## Best Practice Findings
-
-### Critical
-- [file:line] — [issue description]
-
-### Important
-- [file:line] — [issue description]
-
-### Minor
-- [file:line] — [issue description]
-```
+Use the same format from Phase 1.
 
 ---
 

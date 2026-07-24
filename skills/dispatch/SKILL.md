@@ -35,7 +35,7 @@ Do NOT use when tasks are tightly coupled and depend on shared mutable state dur
    f. Reviewer reports spec compliance ✅/❌ and quality Approved/Issues
    g. If issues found — dispatch a fix subagent, then re-review
    h. Mark task complete and append to progress ledger
-5. **After all tasks** — dispatch a final whole-branch code review
+5. **After all tasks** — dispatch a final whole-branch code review using the `review` skill's three-layer criteria (plan alignment, system integrity, production readiness)
 6. **Present results** — summary of what was built, what was reviewed, any remaining minor issues
 
 ## Handling Implementer Status
@@ -49,6 +49,8 @@ Implementer subagents report one of four statuses:
 **NEEDS_CONTEXT:** Provide the missing context and re-dispatch.
 
 **BLOCKED:** Assess the blocker. If it needs more context, provide it. If the task is too large, break it into smaller pieces. If the plan itself is wrong, escalate to the human.
+
+**DISCOVERY:** The implementer completed the task but discovered something that changes the plan for subsequent tasks (e.g., an API does not work as documented, a dependency is unavailable, a constraint was missed). Read the discovery, update the plan for remaining tasks, then proceed.
 
 ## Handling Reviewer Findings
 
@@ -83,6 +85,7 @@ When dispatching a task reviewer, include:
 3. The review package path (diff/commit range)
 4. Global constraints from the plan verbatim
 5. Two verdicts required: spec compliance (all requirements met? nothing extra?) and task quality (code quality, test coverage, following conventions?)
+6. Use the `review` skill's three-layer criteria to evaluate quality — plan alignment, system integrity, and production readiness
 
 ### Fix Subagent Dispatch
 
@@ -101,22 +104,8 @@ Conversation memory does not survive compaction. Track progress in a progress le
 - When a task review comes back clean, append one line: `Task N: complete (commits <hash>..<hash>, review clean)`
 - The ledger is your recovery map after compaction
 
-## Advantages
-
-- Fresh subagent per task (no context pollution)
-- Subagent gets complete information upfront
-- Review after each task catches issues early
-- Fix loops ensure issues are actually resolved
-- File-based handoffs keep your context clean
-- Progress ledger survives compaction
-
 ## Red Flags
 
-- Do not skip task review or accept a report missing either verdict
-- Do not proceed with unfixed Critical/Important issues
 - Do not dispatch multiple implementation subagents in parallel (causes conflicts)
-- Do not make a subagent read the whole plan file — hand it its task brief
-- Do not skip scene-setting context — subagent needs to understand where task fits
 - Do not ignore subagent questions — answer before letting them proceed
 - Do not let implementer self-review replace actual review (both are needed)
-- Do not skip generating the review package before dispatching the reviewer

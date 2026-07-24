@@ -11,7 +11,7 @@ Run this after every feature. Before you move on.
 
 ## What This Skill Does Not Do
 
-It does not fix anything. It reports what it finds and lets the developer decide what matters and what to do about it. Fixing without understanding is how problems get buried, not solved.
+It does not scope-creep. It reports what it finds and lets the developer decide what matters. The exception is Critical issues — offer to fix those immediately because they block deployment. For everything else, the developer decides.
 
 ---
 
@@ -51,14 +51,14 @@ Check:
 
 - **Architecture boundaries** — does code in the right place own the right responsibilities? No UI logic in API routes. No DB calls in components. Whatever the project's boundaries are — are they respected?
 - **Design system** — are the correct tokens, classes, and patterns used? Any hardcoded values that should be variables? Any raw color classes that should use the design system?
-- **Code standards** — naming conventions, file organisation, TypeScript strictness, error handling patterns — do they match what the project established?
+- **Code standards** — naming conventions, file organization, TypeScript strictness, error handling patterns — do they match what the project established?
 - **Existing patterns** — does this feature introduce a new pattern when an existing one should have been used?
 
 ### Layer 3 — Is it production ready?
 
 Check:
 
-- Error handling — what happens when things go wrong? Are errors caught and handled or does the feature silently fail?
+- Error handling — what happens when things go wrong? Are errors caught and handled gracefully or does the feature silently fail?
 - Edge cases — empty states, loading states, missing data — are these handled?
 - Console errors — any errors or warnings in the browser or terminal?
 - Obvious bugs — anything that would clearly break for a real user?
@@ -95,7 +95,10 @@ After completing all three layers, produce a clear report. Do not bury issues. D
 
 ## Step 4 — Let the Developer Decide
 
-After presenting the report, stop. Do not start fixing. Do not suggest fixes unless the developer asks.
+After presenting the report, let the severity guide your next action:
+
+- **Critical issues found** — offer to fix them immediately. "I found [N] Critical issues. Should I fix these now before we move on?" Do not wait to be asked for Critical issues that block deployment or break core functionality.
+- **Important or Minor issues found** — stop and wait. Do not start fixing. Do not suggest fixes unless the developer asks.
 
 Wait for the developer to:
 
@@ -105,11 +108,20 @@ Wait for the developer to:
 
 The developer owns the quality decision. You inform it.
 
+### Re-review after fixes
+
+If the developer asks you to fix issues (or you offered to fix Critical issues):
+
+1. Apply the fixes
+2. Re-run only the review layers affected by the changes
+3. Present the updated report
+4. Do not re-run layers that were not touched — that wastes time
+
 ---
 
 ## Severity Guide
 
-Not all issues are equal. Use this to help the developer prioritise:
+Not all issues are equal. Use this to help the developer prioritize:
 
 **Critical — fix before moving on**
 
@@ -130,13 +142,3 @@ Not all issues are equal. Use this to help the developer prioritise:
 - Style issues that do not affect the design system
 
 Label each issue with its severity so the developer can triage quickly.
-
----
-
-## The Standard
-
-The question this skill answers is not "does it work?"
-
-The question is "is it correct?"
-
-Working and correct are not the same thing. A feature can work today and break the project tomorrow. Review exists to catch the difference.

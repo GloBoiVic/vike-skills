@@ -5,11 +5,7 @@ description: When something goes wrong during a build, diagnose what type of fai
 
 Not every problem is a bug. Not every bug needs debugging.
 
-When something goes wrong with AI-assisted development, the instinct is to keep prompting — describe the problem, ask for a fix, get another broken version, describe that problem, ask for another fix. The session gets longer. The context gets polluted. The code gets worse.
-
-The problem is not the code. The problem is not knowing what type of failure you are dealing with.
-
-This skill diagnoses the failure first. Then it prescribes the right response. Those are two separate steps and they cannot be swapped.
+The instinct when something goes wrong is to guess and patch. This skill diagnoses the failure type first, then prescribes the right response — and those two steps cannot be swapped.
 
 ---
 
@@ -72,6 +68,9 @@ The session is polluted. More prompting will not help — it will compound the d
 
 - The code runs but produces fundamentally wrong behaviour
 - The agent has been confidently building something that misunderstands a core requirement, library API, or architectural pattern
+- The agent is using library X but the codebase uses library Y
+- The agent built a client-side solution but the project uses server-side rendering
+- The implementation contradicts a constraint stated in project documentation or architecture files
 - The problem is not a bug in the implementation — the implementation itself is wrong
 - Fixing individual pieces will not help because the approach is incorrect
 
@@ -79,6 +78,13 @@ The session is polluted. More prompting will not help — it will compound the d
 This is not a debugging problem. The approach needs to be reconsidered before any code is written. More implementation in the wrong direction makes things harder to untangle.
 
 **Response:** Rethink — go to Step 3C.
+
+---
+
+### What Comes Next After Each Mode
+
+- **After Mode 3 (Rethink):** Run `/architect` on the corrected understanding before writing any new code.
+- **After Mode 2 (Hard Reset):** When the fresh session starts, run `/remember restore` with the reset note as context.
 
 ---
 
@@ -243,11 +249,3 @@ If no — tell me what I am getting wrong.
 ```
 
 Only after the developer confirms does any rebuilding begin.
-
----
-
-## The Principle
-
-The worst thing you can do when something is broken is keep doing the same thing faster.
-
-Diagnose first. Respond correctly. Different failures need different responses — and knowing which failure you are dealing with is more than half the solution.

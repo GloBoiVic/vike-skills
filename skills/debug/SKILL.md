@@ -5,8 +5,6 @@ description: Systematic root-cause debugging. Four-phase process — reproduce a
 
 Not every bug is obvious. Not every fix is correct on the first try.
 
-When something breaks, the instinct is to guess and patch — change something, see if it helps, change something else. This wastes time, pollutes the codebase, and buries the real problem under layers of workarounds.
-
 This skill replaces guessing with a systematic process. Four phases, followed in order. Each phase has a clear output before the next one begins.
 
 ## How to Invoke
@@ -23,20 +21,22 @@ Describe what is broken. The skill takes it from there.
 
 Before any fix attempt, establish what is actually happening.
 
-### Step 1.1 — Get the exact failure
+### Step 1.1 — Reproduce it yourself first
 
-Ask the developer for:
+Attempt to reproduce the failure yourself. Run the relevant code, check the error, confirm you can see the wrong behaviour that was described.
+
+If you have access to error logs, stack traces, or test output — start there before asking any questions.
+
+### Step 1.2 — Ask the developer if you cannot reproduce
+
+Only ask the developer after you have tried and failed to reproduce:
 
 - What did you expect to happen?
 - What happened instead?
 - What are the exact steps to reproduce?
 - Any error messages, stack traces, or console output?
 
-### Step 1.2 — Reproduce it
-
-Attempt to reproduce the failure yourself. Run the relevant code, check the error, confirm you can see the same wrong behaviour the developer described.
-
-If you cannot reproduce it, ask for more specific steps or environment details.
+If you can reproduce the bug without asking, skip this step entirely.
 
 ### Step 1.3 — Isolate to a specific location
 
@@ -186,20 +186,12 @@ If at any point you cannot make progress:
 - **Phase 1** — cannot reproduce or isolate → ask the developer for more detail
 - **Phase 2** — cannot find root cause after reasonable effort → escalate with what you know
 - **Phase 3** — fix does not work → return to Phase 2 (root cause may be wrong)
-- **Phase 4** — no action needed if bug was trivial and prevention is obvious
+- **Phase 3** — if two root cause attempts both fail → may be a deeper problem. Use the `recover` skill to diagnose whether this is a Failure Mode 2 (polluted session) or Failure Mode 3 (wrong foundation).
+- **Phase 4** — scale effort to the bug. For trivial bugs (typo, wrong variable name, one-character fix), skip Phase 4 unless the developer explicitly asks. For complex bugs, complete all three steps.
 
 ---
 
 ## Red Flags
 
-- Do not skip phases — Phase 2 before Phase 3, always
-- Do not fix symptoms — if you do not know the root cause, you are fixing symptoms
-- Do not make unrelated changes during a fix — one bug, one fix
-- Do not skip the regression test unless the developer explicitly opts out
 - Do not guess at root causes — trace the actual data flow
-
-## The Principle
-
-Debugging is not about trying fixes until something works. Debugging is about understanding the failure well enough that the correct fix is obvious.
-
-Know the root cause before you write a single line of fix code.
+- Do not skip the regression test for complex bugs

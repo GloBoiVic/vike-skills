@@ -47,7 +47,7 @@ Or clone the repo and point your agent's skills directory at it.
 
 | Skill | Invocation | Purpose |
 |-------|-----------|---------|
-| **imprint** | `/imprint` | After building any UI component, extract visual patterns to ui-registry.md. Every component built after matches what came before. |
+| **imprint** | `/imprint` | After building any UI component, extract visual patterns to ui-registry.md. Flags conflicts rather than silently overwriting. Includes audit mode for existing projects. |
 | **remember** | `/remember save` / `/remember restore` | Save session context at the end of a session, restore it at the start of the next. No more starting from zero every time. |
 
 ---
@@ -70,44 +70,44 @@ Periodic health check:  /audit
 
 ### `/architect`
 
-**Use before building anything.** A senior engineer sits with you, aligns on terminology, surfaces the decisions that matter, and produces a clear implementation plan. Collaborative, not adversarial.
+**Use before building anything.** Aligns on terminology (significance-based — no arbitrary count), surfaces the decisions that matter in order of impact, and produces a clear implementation plan. Includes a revision loop if the plan needs adjustment. Assumptions are labeled by confidence level — confirmed, assumed, or deferred.
 
 ### `/dispatch`
 
-**Use when you have a plan to execute.** Breaks the plan into tasks, dispatches a fresh subagent per task, runs a spec compliance + code quality review after each, and loops on fixes. File-based handoffs keep your context clean. Progress ledger survives session compaction.
+**Use when you have a plan to execute.** Breaks the plan into tasks, dispatches a fresh subagent per task, runs a spec compliance + code quality review after each (using `/review`'s three-layer criteria), and loops on fixes. Includes a DISCOVERY status for when an implementer finds something that changes the plan. File-based handoffs keep your context clean. Progress ledger survives session compaction.
 
 ### `/review`
 
-**Use after building any feature.** Three layers of verification: does it match the plan? Does it respect the system architecture and code standards? Is it production-ready? Reports issues with severity — the developer decides what to fix.
+**Use after building any feature.** Three layers of verification: does it match the plan? Does it respect the system architecture and code standards? Is it production-ready? Critical issues are offered for fixing immediately; Important and Minor issues wait for the developer. After fixes, only affected layers are re-reviewed.
 
 ### `/audit`
 
-**Use periodically or before releases.** Three-phase scan: security (secrets, OWASP top 10, auth, injection, dependencies), performance (N+1 queries, bundle size, rendering, memory), and best practices (TypeScript, error handling, testing, architecture). Scope to specific areas with `/audit security`, `/audit performance`, or `/audit practices`.
+**Use periodically or before releases.** Three-phase scan: security (secrets, OWASP top 10, auth, injection, dependencies), performance (N+1 queries, bundle size, rendering, memory), and best practices (TypeScript, error handling, testing, architecture). Uses targeted scanning strategies (regex for secrets, lock files for dependencies) rather than reading every file. False positives are labeled with uncertainty rather than asserted as findings. Scope to specific areas with `/audit security`, `/audit performance`, or `/audit practices`.
 
 ### `/recover`
 
-**Use when something goes wrong.** Not every problem is a bug. Not every bug needs debugging. Diagnoses the failure mode: targeted fix (isolated problem), hard reset (polluted session), or rethink (wrong foundation). The right response depends on the right diagnosis.
+**Use when something goes wrong.** Diagnoses the failure mode before responding: targeted fix (isolated problem), hard reset (polluted session — abandon and restart), or rethink (wrong foundation — the whole approach is incorrect). Concrete detection triggers for mode 3 (wrong library, wrong paradigm, contradicts project docs). After resolution, hands off to the right next skill — `/architect` after a rethink, `/remember restore` after a hard reset.
 
 ### `/debug`
 
-**Use when a bug exists.** Four-phase systematic process: reproduce and isolate to a specific file/function, trace the data flow to find the root cause, apply a precise fix, add regression tests, and scan for similar patterns elsewhere. Know the cause before you write a single line of fix code.
+**Use when a bug exists.** Four-phase systematic process: reproduce first (ask the developer only if you can't), isolate to a specific file/function, trace the data flow to find the root cause, apply a precise fix, then add regression tests. Scales Phase 4 to the bug — trivial fixes skip the deep dive. Cross-references `/recover` when multiple root cause attempts fail.
 
 ### `/imprint`
 
-**Use after building any UI component.** Extracts the visual patterns that matter — backgrounds, borders, radii, text colors, spacing, interactive states — and saves them to ui-registry.md. Every future component matches what came before. Includes audit mode for establishing a baseline on existing projects.
+**Use after building any UI component.** Extracts the visual patterns that matter — backgrounds, borders, radii, text colors, spacing, interactive states — and saves them to ui-registry.md. Flags conflicts when a new component disagrees with existing registry entries rather than silently overwriting. Includes audit mode for establishing a baseline on existing projects, with the option to apply fixes afterward.
 
 ### `/remember`
 
-**Use at the end and start of every session.** AI has no memory between sessions. `/remember save` compresses what matters into memory.md. `/remember restore` reads it back and confirms before continuing. Includes a security boundary — never persists secrets.
+**Use at the end and start of every session.** AI has no memory between sessions. `/remember save` compresses what matters into memory.md, gathering file changes via git diff rather than conversation memory. Asks for direction when the session's work is unrelated to previous memory. `/remember restore` reads it back and confirms before continuing. Includes a security boundary — never persists secrets.
 
 ---
 
 ## Credits
 
-Vike Skills is built on the shoulders of excellent open-source work:
+Vike Skills builds on excellent open-source work, adapted and extended for our own approach:
 
-- **[JSM Skills](https://github.com/JavaScript-Mastery-Pro/jsm-agent-skill)** (MIT) — The `/architect`, `/remember`, `/review`, `/recover`, and `/imprint` skills are used verbatim from JSM Agent Skills by JavaScript Mastery. Their clean, opinionated skill design set the standard for how agent skills should work.
-- **[Superpowers](https://github.com/obra/superpowers)** (MIT) — The `/dispatch` skill adapts the subagent-driven-development methodology from Superpowers by Jesse Vincent and Prime Radiant. The ideas of per-task subagents, automated review loops, and durable progress ledgers originate there.
+- **[JSM Agent Skills](https://github.com/JavaScript-Mastery-Pro/jsm-agent-skill)** (MIT) by JavaScript Mastery — The `/architect`, `/remember`, `/review`, `/recover`, and `/imprint` skills originated there. Their clean, opinionated skill design set the standard for how agent skills should work. We've revised the process flows, tightened redundancies, and added cross-skill handoffs.
+- **[Superpowers](https://github.com/obra/superpowers)** (MIT) by Jesse Vincent and Prime Radiant — The `/dispatch` skill adapts the subagent-driven-development methodology from Superpowers. The ideas of per-task subagents, automated review loops, and durable progress ledgers originate there.
 
 Thank you to both projects for their contributions to the agent engineering community.
 
