@@ -1,0 +1,24 @@
+{
+  "name": "vike-skills",
+  "version": "1.0.0",
+  "description": "Agent skills for developers who want engineering discipline built into their AI workflow — planning, memory, review, recovery, UI consistency, subagent execution, audit, and debugging.",
+  "keywords": [
+    "claude-code",
+    "cursor",
+    "opencode",
+    "windsurf",
+    "cline",
+    "codex",
+    "ai-coding",
+    "skills",
+    "agent-skills",
+    "developer-tools"
+  ],
+  "homepage": "https://github.com/GloBoiVic/vike-skills",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/GloBoiVic/vike-skills.git"
+  },
+  "license": "MIT",
+  "author": "GloBoiVic"
+}
