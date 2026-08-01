@@ -17,7 +17,7 @@ Read the brief from the orchestrator. Know what context is needed.
 - Read key files to understand structure
 - Identify existing patterns (naming, imports, component structure, data flow)
 - Check dependencies (package.json, lock files, configuration)
-- Check remaining docs (`/dispatch/*` and any project docs not covered by the index)
+- The orchestrator provides `/dispatch/` state and task constraints in the exploration brief; do not reread all `/dispatch/*` files
 
 ### 3. Write to /dispatch/EXPLORATION.md
 

@@ -12,7 +12,8 @@ Read the user request. Classify complexity into one of three tiers:
 
 - **Small** — typo fix, button change, simple refactor. Flow: Build → Quick Review.
 - **Feature** — new page, new API, new component. Flow: Explorer → (Architect if needed) → Build → Test → Review.
-- **Architecture** — multi-tenancy, auth system, major refactor. Flow: Explorer → Architect → Build → Test → Security Review → Final Review.
+- **Architecture** — multi-tenancy, system redesign, major refactor. Flow: Explorer → Architect → Build → Test → Review.
+- **Security-sensitive** — authentication, authorization, payments, security redesign. Flow: Explorer → Architect → Build → Test → Premium Security Review.
 
 **Establish project context** — the orchestrator owns context initialization:
 
@@ -56,10 +57,21 @@ Log every model used in /dispatch/MODEL-LOG.md with:
 - Outcome (success / failed / needs-retry)
 
 ### 6. Review
-After implementation, dispatch the `reviewer` subagent with:
+
+Determine the review tier based on what changed:
+
+| Tier | Model | Applies to | Action |
+|------|-------|-----------|--------|
+| **1** | DeepSeek Flash | documentation, styling, simple fixes | Skip formal review. Note "Quick review passed" in TASKS.md. |
+| **2** | GPT-5.6 Luna | features, API changes, database changes, architecture-affecting work | Dispatch reviewer normally with brief + files + constraints. |
+| **3** | `reviewer-premium` | authentication, security, payments, major system redesigns | Dispatch `reviewer-premium` with brief + files + constraints + **"Tier 3: security-critical review required"** flag. |
+
+For Tier 2, dispatch the `reviewer` subagent with:
 - The task brief from PLAN.md
 - The files that were created or modified
-- Any global constraints
+- Global constraints
+
+For Tier 3, dispatch `reviewer-premium` with the same materials plus the explicit flag **"Tier 3: security-critical review required"**.
 
 Read /dispatch/REVIEW.md output. Gate: pass only if no critical issues remain.
 
@@ -78,6 +90,9 @@ Before invoking any premium model (GPT-5.x, Claude, Gemini, etc.), ask yourself:
 3. Is the cheaper model (DeepSeek Flash Free, MiMo Free) likely insufficient for this specific task?
 
 If the answer to all three is no — use the cheaper model. Document model choice in MODEL-LOG.md.
+
+### Review Budget
+Review tiers already encode model cost. Tier 1 skips formal review entirely to save tokens. Tier 2 uses Luna. Tier 3 is rare and uses the explicitly configured `reviewer-premium` model. The premium model is manually swappable in `opencode.jsonc`; do not silently substitute it for routine work.
 
 ## Prohibited Actions
 - You must never write or modify application code

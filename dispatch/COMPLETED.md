@@ -18,3 +18,11 @@ Reviewed the Phase 2 implementation against PLAN.md and ARCHITECTURE.md. Full re
 - **Verdicts** — spec compliance: PASS; quality: PASS. All 8 review criteria verified (init existing/absent branching, no-overwrite rules, adaptive templates, AGENTS.md + index-first loading, orchestrator non-coding boundary, impeccable/imprint retained, valid JSONC + discoverability, no token-heavy duplication).
 - **Findings** — 0 critical, 0 important, 6 minor (index update rule placement, stale index entries, report "11 skills" count, uncommitted pre-existing dispatch/debug/recover changes, orchestrator wording, remember scope note).
 - **Validation performed** — 10/10 SKILL.md frontmatters valid; `opencode.jsonc` parsed clean with a comment/trailing-comma-aware parser; no `context/` directories created during implementation; `impeccable` skill intact (v3.9.1) and permissions unchanged.
+
+## 2026-08-01 — Workflow Cleanup
+
+- Removed unsupported custom fallback configuration.
+- Added explicit `reviewer-premium` Tier 3 route.
+- Made `review`, `audit`, and `quality` responsibilities distinct.
+- Hardened the general agent and updated README guidance.
+- Final cleanup review passed 9/9 checks; model availability verified with `opencode models`.
