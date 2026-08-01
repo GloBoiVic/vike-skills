@@ -66,10 +66,19 @@ To gather this information, use `git diff` against the branch point, or check fi
 ### What not to capture
 
 - Implementation details that are visible in the code
-- Decisions already documented in context files
+- Decisions already documented in context files — `context/index.md` and the context docs it indexes are the project source of truth; reference them, do not restate them
 - Anything that can be inferred by reading the codebase
 - The process of how something was built — only what was built and what was decided
 - Any secrets or credential-like values (tokens, keys, passwords, cookies, auth headers, connection strings)
+
+### What to preserve during updates
+
+When updating an existing memory.md, do not discard:
+- Eureka moments or insights that changed understanding
+- Decisions that are still relevant to current work
+- Problems solved that could recur
+- Context that explains why things are the way they are
+- Open questions that haven't been answered yet
 
 ### Safety check before writing
 
@@ -80,29 +89,36 @@ Before writing `memory.md`, run a final pass over the content to ensure no sensi
 
 ### Where to save
 
-Write the memory to `memory.md` in the project root. This file always contains only the most recent session state.
+Write the memory to `memory.md` in the project root. This file accumulates state across sessions — each save merges new information with existing content, preserving important context from previous sessions.
 
-If the current session's work is unrelated to the saved memory (e.g., memory.md covers Feature A but you worked on Feature B), ask the developer how to handle it before overwriting:
+**Before saving, read `context/index.md` first** — it is the project knowledge source of truth. Check which project facts are already documented in context docs, and do not duplicate them into `memory.md`; reference the doc instead. Then read `/dispatch/COMPLETED.md`, `/dispatch/DECISIONS.md`, and `/dispatch/TASKS.md` — these are the factual record of what was built and decided. Use them as primary sources for the memory summary rather than conversation memory.
 
-```
-memory.md covers [Feature A] but this session worked on [Feature B].
-Should I overwrite with this session's state, or append a new section?
-```
+**If `memory.md` does not exist**, write the new file and confirm.
 
-If `memory.md` already exists and the work is related, show the developer a brief summary of what is currently saved and ask for confirmation before overwriting:
+**If `memory.md` already exists**, read it first, then update:
 
-Step 1 — Read `memory.md`, provide the one-line summary, and stop to wait for developer input:
+Step 1 — Read `memory.md`, provide a brief summary, and list what the new session adds:
 
 ```
-memory.md already exists from a previous session.
-Current memory covers: [one-line summary of existing content].
-
-Overwrite with this session's memory? (yes / no)
+memory.md already exists.
+Current: [one-line summary of existing content].
+This session adds: [what's new or changed].
 ```
 
-Step 2 — After the developer responds:
+Step 2 — Ask for confirmation before updating:
 
-- If they say **yes**, write the new `memory.md`.
+```
+Update memory.md with this session's state? (yes / no)
+```
+
+Step 3 — After the developer responds:
+
+- If they say **yes**, merge the new session state into the existing content:
+  - **Add** new items to "What was built", "Decisions made", "Problems solved"
+  - **Replace** "Current state" and "Next session starts with" with the latest
+  - **Preserve** eureka moments, insights, and context from previous sessions that still matter
+  - **Keep** open questions that haven't been answered yet
+  - Update the "Last updated" timestamp
 - If they say **no**, do not write anything and reply:
 
 ```
@@ -128,6 +144,10 @@ Last updated: [date and time]
 
 [Issues resolved this session — so they are not solved again]
 
+## Eureka moments
+
+[Insights that changed understanding — the "aha" moments worth remembering]
+
 ## Current state
 
 [Exactly where things stand — what works, what is partial, what is broken]
@@ -149,6 +169,13 @@ Memory saved to memory.md.
 Next session: run /remember restore to pick up from here.
 ```
 
+If this was an update (not a new file), also mention what was preserved:
+
+```
+Preserved from previous session: [what was kept].
+Added from this session: [what's new].
+```
+
 ---
 
 ## Restore Mode
@@ -168,7 +195,11 @@ To save memory at the end of a session, run /remember save.
 
 ### Step 2 — Read everything available
 
-Read `memory.md` first. Then check for common agent context files at the project root — for example:
+Read `memory.md` first. Then read all files in /dispatch/ — PLAN.md, ARCHITECTURE.md, TASKS.md, DECISIONS.md, COMPLETED.md, MODEL-LOG.md, REVIEW.md. These contain the project's current state and decision history.
+
+Then read `context/index.md` and treat it and the context docs it indexes as the project source of truth — load only the docs relevant to the session using the index descriptions, and do not restate their contents in memory. Only facts that live nowhere else belong in `memory.md`.
+
+Then check for common agent context files at the project root — for example:
 
 - `CLAUDE.md`, `.claude/context.md` — Claude Code
 - `.github/copilot-instructions.md` — GitHub Copilot

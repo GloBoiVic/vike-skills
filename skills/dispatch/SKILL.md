@@ -24,8 +24,8 @@ Do NOT use when tasks are tightly coupled and depend on shared mutable state dur
 ## The Process
 
 1. **Read the plan** — understand the full scope, global constraints, and task list
-2. **Create todos** — one per task from the plan
-3. **Check for progress ledger** — if one exists, resume from where you left off
+2. **Create or read /dispatch/ folder** — check for existing /dispatch/PLAN.md, /dispatch/TASKS.md, /dispatch/DECISIONS.md, /dispatch/COMPLETED.md. Resume from where you left off — never re-dispatch completed tasks.
+3. **Create todos** — one per task from the plan
 4. **Per task:**
    a. Extract task brief from the plan (the exact requirements and code)
    b. Dispatch an implementer subagent with the brief + context + report file path
@@ -34,7 +34,7 @@ Do NOT use when tasks are tightly coupled and depend on shared mutable state dur
    e. Dispatch a task reviewer subagent with the diff + brief + global constraints
    f. Reviewer reports spec compliance ✅/❌ and quality Approved/Issues
    g. If issues found — dispatch a fix subagent, then re-review
-   h. Mark task complete and append to progress ledger
+   h. Mark task complete in /dispatch/TASKS.md, append to /dispatch/COMPLETED.md, log model in /dispatch/MODEL-LOG.md
 5. **After all tasks** — dispatch a final whole-branch code review using the `review` skill's three-layer criteria (plan alignment, system integrity, production readiness)
 6. **Present results** — summary of what was built, what was reviewed, any remaining minor issues
 
@@ -64,7 +64,7 @@ Use files for all handoffs between your session and subagents:
 - **Task brief:** extract the task's requirements into a file before dispatch
 - **Report file:** the implementer writes their full report here; they return only status, commits, test summary, and concerns in their response
 - **Review package:** the diff/commit range for the reviewer to examine
-- **Progress ledger:** persistent record of completed tasks (survives context compaction)
+- **Progress ledger:** /dispatch/TASKS.md and /dispatch/COMPLETED.md (survive context compaction)
 
 ## Prompt Templates
 
@@ -95,14 +95,29 @@ When dispatching a fix subagent, include:
 3. The covering test files to re-run after the fix
 4. Report contract: append fix report with test results to the report file
 
-## Durable Progress
+## /dispatch/ Folder — Source of Truth
 
-Conversation memory does not survive compaction. Track progress in a progress ledger file:
+Conversation memory does not survive compaction. Track all progress in the /dispatch/ folder at project root:
 
-- At `/dispatch` start, check for an existing progress ledger
-- Tasks listed as complete are DONE — do not re-dispatch them
-- When a task review comes back clean, append one line: `Task N: complete (commits <hash>..<hash>, review clean)`
-- The ledger is your recovery map after compaction
+```
+<project-root>/dispatch/
+├── PLAN.md          # Current implementation plan
+├── ARCHITECTURE.md  # Architecture decisions and boundaries
+├── TASKS.md         # Task state (todo/in-progress/done/blocked)
+├── DECISIONS.md     # Append-only decision log
+├── REVIEW.md        # Review reports per feature
+├── MODEL-LOG.md     # Model usage per task for budget tracking
+├── EXPLORATION.md   # Exploration context (from explore agent)
+└── COMPLETED.md     # Accumulated completion history
+```
+
+### Rules:
+- At `/dispatch` start, read all existing files in /dispatch/ to understand current state
+- Tasks listed as complete in TASKS.md or COMPLETED.md are DONE — never re-dispatch them
+- After each task completes, update TASKS.md and append to COMPLETED.md
+- After each decision, append to DECISIONS.md (prevents re-argument)
+- After each model use, append to MODEL-LOG.md (enables budget optimization)
+- The /dispatch/ folder is your recovery map after compaction
 
 ## Red Flags
 
