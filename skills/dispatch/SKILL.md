@@ -33,7 +33,7 @@ Do NOT use when tasks are tightly coupled and depend on shared mutable state dur
    d. Generate the diff/review package
    e. Dispatch a task reviewer subagent with the diff + brief + global constraints
    f. Reviewer reports spec compliance ✅/❌ and quality Approved/Issues
-   g. If issues found — dispatch a fix subagent, then re-review
+   g. If issues found — hand the findings back to the **same builder** who implemented the task to fix them, then re-review
    h. Mark task complete in /dispatch/TASKS.md, append to /dispatch/COMPLETED.md, log model in /dispatch/MODEL-LOG.md
 5. **After all tasks** — dispatch a final whole-branch code review using the `review` skill's three-layer criteria (plan alignment, system integrity, production readiness)
 6. **Present results** — summary of what was built, what was reviewed, any remaining minor issues
@@ -54,7 +54,7 @@ Implementer subagents report one of four statuses:
 
 ## Handling Reviewer Findings
 
-- **Critical / Important** findings → dispatch a fix subagent, then re-review
+- **Critical / Important** findings → hand them back to the **same builder** who implemented the task to fix, then re-review
 - **Minor** findings → record in the progress ledger, flag for the final review
 - A finding labeled "plan-mandated" that conflicts with the plan text → present both to the human and ask which governs
 
@@ -87,9 +87,9 @@ When dispatching a task reviewer, include:
 5. Two verdicts required: spec compliance (all requirements met? nothing extra?) and task quality (code quality, test coverage, following conventions?)
 6. Use the `review` skill's three-layer criteria to evaluate quality — plan alignment, system integrity, and production readiness
 
-### Fix Subagent Dispatch
+### Fix Loop Dispatch (same builder)
 
-When dispatching a fix subagent, include:
+Findings go back to the **same builder** who implemented the task — they already hold the task context and know the code they wrote. Include:
 1. All findings from the reviewer (Critical and Important)
 2. The file paths that need changes
 3. The covering test files to re-run after the fix
@@ -125,3 +125,4 @@ Conversation memory does not survive compaction. Track all progress in the flat 
 - Do not dispatch multiple implementation subagents in parallel (causes conflicts)
 - Do not ignore subagent questions — answer before letting them proceed
 - Do not let implementer self-review replace actual review (both are needed)
+- Do not loop fixes indefinitely — if the same Critical/Important issue survives two fix attempts, escalate to the developer

@@ -91,6 +91,8 @@ For Tier 2, dispatch the `reviewer` subagent with:
 
 For Tier 3, dispatch `reviewer-premium` with the same materials plus the explicit flag **"Tier 3: security-critical review required"**.
 
+**Fix loop (same builder):** If the reviewer reports Critical or Important issues, hand the findings back to the **same builder** who implemented the task to fix them (include the findings, the file paths that need changes, and the covering tests to re-run). Then re-review. If the same Critical/Important issue survives two fix attempts, escalate to the developer.
+
 Read /dispatch/REVIEW.md output. Gate: pass only if no critical issues remain.
 
 ### 8. Complete
