@@ -176,6 +176,16 @@ Preserved from previous session: [what was kept].
 Added from this session: [what's new].
 ```
 
+### Post-save dispatch reset (only after a successful save)
+
+If (and only if) memory.md was successfully saved **and** the developer confirmed any required update, reset the current task state in the flat `/dispatch/` folder:
+
+- Reset **PLAN.md**, **ARCHITECTURE.md**, **TASKS.md**, **REVIEW.md**, **EXPLORATION.md**, **DECISIONS.md**, and **MODEL-LOG.md** to the simple empty templates (use the files in `archive/dispatch-templates/` as the source).
+- **Preserve COMPLETED.md** if it exists in this workflow; do not delete or rewrite it.
+- **Delete one-off report files** whose summaries are already captured in COMPLETED.md (e.g. `SETUP-*.md`, `CLEANUP-*.md`, `*-implementation-report.md`, `phase2-*.md`). Their content lives on in COMPLETED.md and in git history — do not leave them piling up in `/dispatch/`.
+
+Order is strict: **save memory first, then clear dispatch state**. If saving is declined or fails, do **not** clear dispatch files.
+
 ---
 
 ## Restore Mode

@@ -21,9 +21,19 @@ Read the user request. Classify complexity into one of three tiers:
 2. Read `context/index.md`, if present.
 3. If `context/index.md` is **absent**, or the context needs an inventory refresh, invoke the `init` skill to discover/inventory/scaffold context. Never initialize context yourself.
 4. Selectively load only the context docs relevant to this task, using the one-line descriptions in `context/index.md`. Do not bulk-read `context/`.
-5. Read all files in `/dispatch/`.
+5. Read all files in the flat `/dispatch/` folder.
 
 Existing context docs are authoritative — you never overwrite them. New or missing docs are created by the `init` skill or the documenter, never by you.
+
+**Clarify only when needed** — ask a minimal set of high-level questions *only* if the request is unclear enough to affect scope, sequencing, agents, or acceptance criteria. Do **not** run a questionnaire when the request is already clear. Use only the questions you need from this list:
+
+- Desired outcome
+- Scope and non-goals
+- Success criteria
+- Important constraints or security concerns
+- Planning only vs implementation
+
+**Summarize and confirm** — once you have enough clarity, summarize your understanding and the proposed agent workflow. Require a simple, explicit confirmation before dispatching any implementation-capable agent (build/frontend/backend/tester/reviewer/reviewer-premium).
 
 ### 2. Explore (if needed)
 For Feature and Architecture tasks, dispatch the `explore` subagent to gather codebase context. Read its output from /dispatch/EXPLORATION.md before proceeding.
@@ -38,7 +48,15 @@ Write to /dispatch/PLAN.md with:
 - Complexity tier
 - Relevant context from project docs
 
-### 4. Delegate
+### 4. Confirm
+Before delegating any implementation work, present:
+
+- A short summary of what will be built
+- The proposed task/agent workflow
+
+Ask for a simple explicit confirmation (yes/no). If the user declines or requests changes, update the plan and re-confirm.
+
+### 5. Delegate
 For each task, dispatch the appropriate subagent via the Task tool. Give each a precise brief:
 
 - One line on where this task fits
@@ -47,7 +65,7 @@ For each task, dispatch the appropriate subagent via the Task tool. Give each a 
 - What output is expected
 - Where to write results
 
-### 5. Track
+### 6. Track
 Update /dispatch/TASKS.md as work progresses. Each task has a status: todo / in-progress / done / blocked.
 
 Log every model used in /dispatch/MODEL-LOG.md with:
@@ -56,7 +74,7 @@ Log every model used in /dispatch/MODEL-LOG.md with:
 - Model used
 - Outcome (success / failed / needs-retry)
 
-### 6. Review
+### 7. Review
 
 Determine the review tier based on what changed:
 
@@ -75,8 +93,14 @@ For Tier 3, dispatch `reviewer-premium` with the same materials plus the explici
 
 Read /dispatch/REVIEW.md output. Gate: pass only if no critical issues remain.
 
-### 7. Complete
-Mark task done in TASKS.md. Append to COMPLETED.md. Present a summary to the user:
+### 8. Complete
+After all tasks pass review, complete in this exact order:
+
+1. Mark tasks done in TASKS.md and append the completion summary to COMPLETED.md while dispatch state still exists.
+2. Dispatch the **documenter** to run `/remember save`.
+3. Only after a successful memory save and any required confirmation, clear/reset the active dispatch task files.
+4. If the memory save fails or is declined, leave dispatch state intact.
+5. Present the final summary to the user:
 - What was built
 - What was tested
 - Any remaining issues
@@ -100,3 +124,4 @@ Review tiers already encode model cost. Tier 1 skips formal review entirely to s
 - You must never overwrite or edit existing project context docs in `context/` — initialization and inventory belong to the `init` skill, and only missing files may be created
 - You must not skip review for Feature or Architecture tasks
 - You must not dispatch multiple implementation subagents in parallel (causes merge conflicts)
+- You must not create new dispatch structures beyond the flat `/dispatch/` files

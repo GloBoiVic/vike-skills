@@ -26,3 +26,11 @@ Reviewed the Phase 2 implementation against PLAN.md and ARCHITECTURE.md. Full re
 - Made `review`, `audit`, and `quality` responsibilities distinct.
 - Hardened the general agent and updated README guidance.
 - Final cleanup review passed 9/9 checks; model availability verified with `opencode models`.
+
+## 2026-08-01 — Model Routing Update + Dispatch Cleanup
+
+- Updated agent models in `~/.config/opencode/opencode.jsonc`: **build** → `opencode/deepseek-v4-pro`, **frontend** → `opencode/kimi-k2.7-code`, **reviewer-premium** → `opencode/gpt-5.6-luna`.
+- Synced README agent table and Tier 3 note to match; reviewer-premium documented as "default Luna; swap to a stronger model in `opencode.jsonc` if needed".
+- Hardened `remember` post-save reset: added `ARCHITECTURE.md` to the reset list and added a rule to delete one-off report files (`SETUP-*.md`, `CLEANUP-*.md`, `*-implementation-report.md`, `phase2-*.md`) whose summaries are already in COMPLETED.md.
+- Added `archive/dispatch-templates/ARCHITECTURE.md` template.
+- Cleaned the bloated `dispatch/` folder: reset canonical files to templates, deleted 8 one-off report files (recoverable from git).

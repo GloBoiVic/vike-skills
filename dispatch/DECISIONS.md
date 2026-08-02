@@ -1,7 +1,8 @@
 # Decisions
 
-## 2026-08-01 — Replace fixed templates with adaptive context discovery
+## [date] — [decision title]
 
-- **Decision:** Use `/context` with an indexed, selectively loaded knowledge model instead of a fixed project template.
-- **Rationale:** Projects vary by domain; adaptive recommendations reduce noise and preserve existing documentation.
-- **Constraint:** Initialization never overwrites existing documentation.
+- **Context:** [why this decision came up]
+- **Decision:** [what was decided]
+- **Rationale:** [why this was the right choice]
+- **Alternatives considered:** [what was rejected and why]

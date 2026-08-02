@@ -24,7 +24,7 @@ Do NOT use when tasks are tightly coupled and depend on shared mutable state dur
 ## The Process
 
 1. **Read the plan** — understand the full scope, global constraints, and task list
-2. **Create or read /dispatch/ folder** — check for existing /dispatch/PLAN.md, /dispatch/TASKS.md, /dispatch/DECISIONS.md, /dispatch/COMPLETED.md. Resume from where you left off — never re-dispatch completed tasks.
+2. **Create or read /dispatch/ folder** — use the flat `/dispatch/` files only. Check for existing /dispatch/PLAN.md, /dispatch/TASKS.md, /dispatch/DECISIONS.md, /dispatch/COMPLETED.md. Resume from where you left off — never re-dispatch completed tasks.
 3. **Create todos** — one per task from the plan
 4. **Per task:**
    a. Extract task brief from the plan (the exact requirements and code)
@@ -97,7 +97,7 @@ When dispatching a fix subagent, include:
 
 ## /dispatch/ Folder — Source of Truth
 
-Conversation memory does not survive compaction. Track all progress in the /dispatch/ folder at project root:
+Conversation memory does not survive compaction. Track all progress in the flat `/dispatch/` folder at project root:
 
 ```
 <project-root>/dispatch/
@@ -118,6 +118,7 @@ Conversation memory does not survive compaction. Track all progress in the /disp
 - After each decision, append to DECISIONS.md (prevents re-argument)
 - After each model use, append to MODEL-LOG.md (enables budget optimization)
 - The /dispatch/ folder is your recovery map after compaction
+- Do not create new dispatch structures, indexes, or retention mechanisms
 
 ## Red Flags
 
