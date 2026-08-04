@@ -53,7 +53,7 @@ Vike Skills supports a multi-agent engineering organization with an orchestrator
 ### The Orchestrator Flow
 
 ```
-Request → Orchestrator → [Explore] → [Architect] → Build →
+Request → Orchestrator → [Explore] → [Architect] → [Human confirmation] → Build →
                                      Test → Review → Gate → Complete
 ```
 
@@ -66,11 +66,11 @@ The orchestrator manages the entire process — it never writes code. It reads p
 | **orchestrator** | Engineering manager — plans, delegates, tracks, gates | opencode/gpt-5.6-luna |
 | **explore** | Repository intelligence — finds files, detects patterns, creates compressed context | opencode/deepseek-v4-flash |
 | **architect** | Senior engineering decisions — system design, boundaries, technical plans | opencode/gpt-5.6-luna |
-| **build** | Primary implementation — writes production code, tests, refactors | opencode/deepseek-v4-pro |
-| **frontend** | UI implementation — design system, impeccable standards, imprint workflow | opencode/kimi-k2.7-code |
-| **backend** | API and database implementation | opencode/deepseek-v4-pro |
-| **reviewer** | Quality control — plan alignment, system integrity, production readiness | opencode/gpt-5.6-luna |
-| **reviewer-premium** | Tier 3 security and high-risk architecture review | opencode/gpt-5.6-luna (default; swap to a stronger model in `opencode.jsonc` if needed) |
+| **build** | Primary implementation — writes production code, tests, refactors | opencode/gpt-5.6-luna |
+| **frontend** | UI implementation — design system, impeccable standards, imprint workflow | opencode/gpt-5.6-luna |
+| **backend** | API and database implementation | opencode/gpt-5.6-luna |
+| **reviewer** | Quality control — plan alignment, system integrity, production readiness | opencode/deepseek-v4-flash |
+| **reviewer-premium** | Tier 3 security and high-risk architecture review | opencode/deepseek-v4-pro |
 | **tester** | Test implementation, coverage | opencode/deepseek-v4-flash |
 | **documenter** | Documentation, session memory | opencode/deepseek-v4-flash |
 | **general** | One-off tasks outside the orchestrator workflow — manual escape hatch. Must be selected explicitly via TUI/Tab or `opencode agent set general` (not the fallback agent). | (no override; uses active OpenCode default model) |
@@ -82,15 +82,15 @@ The orchestrator manages the entire process — it never writes code. It reads p
 | Task Size | Flow |
 |-----------|------|
 | **Small** (typo, button change, comment fix) | Build → Quick Review (Tier 1) |
-| **Feature** (new page, new API, new component) | Explore → Build → Test → Review (Tier 2) |
-| **Architecture** (multi-tenancy, system design, refactoring) | Explore → Architect → Build → Test → Review (Tier 2 — Luna reviewer) |
+| **Feature** (new page, new API, new component) | Explore → Architect → Build → Test → Review (Tier 2) |
+| **Architecture** (multi-tenancy, system design, refactoring) | Explore → Architect → Build → Test → Review (Tier 2 — DeepSeek V4 Flash reviewer) |
 | **Security-sensitive** (auth, payments, security redesign) | Explore → Architect → Build → Test → `reviewer-premium` (Tier 3) |
 
 ### Review Tiers
 
 - **Tier 1 — Skip formal review.** For docs, styling, simple fixes, and trivial changes. No reviewer agent is dispatched.
-- **Tier 2 — Luna reviewer.** Full formal review for features, API changes, database schema, and architecture decisions. Uses the **reviewer** agent (opencode/gpt-5.6-luna) to verify plan alignment, system integrity, and production readiness.
-- **Tier 3 — Premium review.** Uses the explicit `reviewer-premium` agent for authentication, payments, security, and major security-sensitive redesigns. Defaults to `opencode/gpt-5.6-luna`; swap to a stronger model in `opencode.jsonc` if the use case demands it.
+- **Tier 2 — DeepSeek V4 Flash review.** Full formal review for features, API changes, database schema, and architecture decisions. Uses the **reviewer** agent (opencode/deepseek-v4-flash) to verify plan alignment, system integrity, and production readiness.
+- **Tier 3 — Premium review.** Uses the explicit `reviewer-premium` agent for authentication, payments, security, and major security-sensitive redesigns. Uses `opencode/deepseek-v4-pro`; swap to a different model in `opencode.jsonc` if the use case demands it.
 
 ### General Agent (Escape Hatch)
 
@@ -216,8 +216,8 @@ opencode agent set orchestrator
 # 3. Request the feature
 > Add a paginated blog with category filtering and search
 
-# Orchestrator explores, architects, dispatches build tasks, runs tests,
-# reviews the result, and gates completion.
+# Orchestrator explores, architects, presents the workflow for explicit human
+# confirmation, then dispatches build tasks, runs tests, reviews, and gates.
 
 # 4. After UI work, imprint visual patterns
 /imprint

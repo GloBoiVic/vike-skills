@@ -34,3 +34,11 @@ Reviewed the Phase 2 implementation against PLAN.md and ARCHITECTURE.md. Full re
 - Hardened `remember` post-save reset: added `ARCHITECTURE.md` to the reset list and added a rule to delete one-off report files (`SETUP-*.md`, `CLEANUP-*.md`, `*-implementation-report.md`, `phase2-*.md`) whose summaries are already in COMPLETED.md.
 - Added `archive/dispatch-templates/ARCHITECTURE.md` template.
 - Cleaned the bloated `dispatch/` folder: reset canonical files to templates, deleted 8 one-off report files (recoverable from git).
+
+## 2026-08-04 — Workflow Enforcement: Mandatory Architect + Config-Authoritative Models
+
+Completed the targeted workflow enforcement change across the Vike Skills codebase.
+
+- **Phase A (Config + Skill)** — Updated `opencode.jsonc` orchestrator prompt to enforce mandatory Explore → Architect → explicit human confirmation for Feature/Architecture/Security-sensitive tasks (small tasks exempt). Updated `orchestrate/SKILL.md` complexity routing to make Architect mandatory for Feature and Security-sensitive flows; Architect blueprint is authoritative for implementation agents.
+- **Phase B (Documentation Sync)** — Corrected README agent-model table to match `opencode.jsonc`: build/frontend/backend → `opencode/gpt-5.6-luna`, reviewer → `opencode/deepseek-v4-flash`, reviewer-premium → `opencode/deepseek-v4-pro`. Synced complexity routing and review tiers.
+- **Phase C (Review & Gate)** — Tier 2 review verified all 6 criteria: PASS with 2 minor issues (MODEL-LOG completion gaps now resolved; DECISIONS.md scope documentation noted). No critical or important findings. No unintended files modified. No `default_agent` changes.
