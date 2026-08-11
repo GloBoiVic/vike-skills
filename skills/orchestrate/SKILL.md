@@ -85,8 +85,8 @@ Determine the review tier based on what changed:
 | Tier | Model | Applies to | Action |
 |------|-------|-----------|--------|
 | **1** | DeepSeek Flash | documentation, styling, simple fixes | Skip formal review. Note "Quick review passed" in TASKS.md. |
-| **2** | GPT-5.6 Luna | features, API changes, database changes, architecture-affecting work | Dispatch reviewer normally with brief + files + constraints. |
-| **3** | `reviewer-premium` | authentication, security, payments, major system redesigns | Dispatch `reviewer-premium` with brief + files + constraints + **"Tier 3: security-critical review required"** flag. |
+| **2** | DeepSeek V4 Flash | features, API changes, database changes, architecture-affecting work | Dispatch reviewer normally with brief + files + constraints. |
+| **3** | `reviewer-premium` (openai/gpt-5.6-terra) | authentication, security, payments, major system redesigns | Dispatch `reviewer-premium` with brief + files + constraints + **"Tier 3: security-critical review required"** flag. |
 
 For Tier 2, dispatch the `reviewer` subagent with:
 - The task brief from PLAN.md
@@ -122,7 +122,7 @@ Before invoking any premium model (GPT-5.x, Claude, Gemini, etc.), ask yourself:
 If the answer to all three is no — use the cheaper model. Document model choice in MODEL-LOG.md.
 
 ### Review Budget
-Review tiers already encode model cost. Tier 1 skips formal review entirely to save tokens. Tier 2 uses Luna. Tier 3 is rare and uses the explicitly configured `reviewer-premium` model. The premium model is manually swappable in `opencode.jsonc`; do not silently substitute it for routine work.
+Review tiers already encode model cost. Tier 1 skips formal review entirely to save tokens. Tier 2 uses the `reviewer` agent (DeepSeek V4 Flash). Tier 3 is rare and uses the explicitly configured `reviewer-premium` model (openai/gpt-5.6-terra). The premium model is manually swappable in `opencode.jsonc`; do not silently substitute it for routine work.
 
 ## Prohibited Actions
 - You must never write or modify application code

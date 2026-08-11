@@ -63,14 +63,14 @@ The orchestrator manages the entire process — it never writes code. It reads p
 
 | Agent | Role | Model |
 |-------|------|-------|
-| **orchestrator** | Engineering manager — plans, delegates, tracks, gates | opencode/gpt-5.6-luna |
+| **orchestrator** | Engineering manager — plans, delegates, tracks, gates | openai/gpt-5.6-luna |
 | **explore** | Repository intelligence — finds files, detects patterns, creates compressed context | opencode/deepseek-v4-flash |
-| **architect** | Senior engineering decisions — system design, boundaries, technical plans | opencode/gpt-5.6-luna |
-| **build** | Primary implementation — writes production code, tests, refactors | opencode/gpt-5.6-luna |
-| **frontend** | UI implementation — design system, impeccable standards, imprint workflow | opencode/gpt-5.6-luna |
-| **backend** | API and database implementation | opencode/gpt-5.6-luna |
+| **architect** | Senior engineering decisions — system design, boundaries, technical plans | openai/gpt-5.6-luna |
+| **build** | Primary implementation — writes production code, tests, refactors | openai/gpt-5.6-luna |
+| **frontend** | UI implementation — design system, impeccable standards, imprint workflow | openai/gpt-5.6-luna |
+| **backend** | API and database implementation | openai/gpt-5.6-luna |
 | **reviewer** | Quality control — plan alignment, system integrity, production readiness | opencode/deepseek-v4-flash |
-| **reviewer-premium** | Tier 3 security and high-risk architecture review | opencode/deepseek-v4-pro |
+| **reviewer-premium** | Tier 3 security and high-risk architecture review | openai/gpt-5.6-terra |
 | **tester** | Test implementation, coverage | opencode/deepseek-v4-flash |
 | **documenter** | Documentation, session memory | opencode/deepseek-v4-flash |
 | **general** | One-off tasks outside the orchestrator workflow — manual escape hatch. Must be selected explicitly via TUI/Tab or `opencode agent set general` (not the fallback agent). | (no override; uses active OpenCode default model) |
@@ -90,7 +90,7 @@ The orchestrator manages the entire process — it never writes code. It reads p
 
 - **Tier 1 — Skip formal review.** For docs, styling, simple fixes, and trivial changes. No reviewer agent is dispatched.
 - **Tier 2 — DeepSeek V4 Flash review.** Full formal review for features, API changes, database schema, and architecture decisions. Uses the **reviewer** agent (opencode/deepseek-v4-flash) to verify plan alignment, system integrity, and production readiness.
-- **Tier 3 — Premium review.** Uses the explicit `reviewer-premium` agent for authentication, payments, security, and major security-sensitive redesigns. Uses `opencode/deepseek-v4-pro`; swap to a different model in `opencode.jsonc` if the use case demands it.
+- **Tier 3 — Premium review.** Uses the explicit `reviewer-premium` agent for authentication, payments, security, and major security-sensitive redesigns. Uses `openai/gpt-5.6-terra`; swap to a different model in `opencode.jsonc` if the use case demands it.
 
 ### General Agent (Escape Hatch)
 
