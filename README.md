@@ -6,7 +6,7 @@ AI agents are powerful. They're also stateless, pattern-matching tools that will
 
 Vike Skills give your AI agent the engineering discipline it doesn't have by default — architectural thinking before you write code, structured review after, cross-session memory, systematic debugging, and codebase-wide auditing.
 
-Ten skills. Zero bloat. Works with Claude Code, Cursor, Windsurf, Codex, Cline, OpenCode, and any agent that supports the SKILL.md format.
+Fifteen skills. Zero bloat. Works with Claude Code, Cursor, Windsurf, Codex, Cline, OpenCode, and any agent that supports the SKILL.md format.
 
 ---
 
@@ -63,16 +63,17 @@ The orchestrator manages the entire process — it never writes code. It reads p
 
 | Agent | Role | Model |
 |-------|------|-------|
-| **orchestrator** | Engineering manager — plans, delegates, tracks, gates | openai/gpt-5.6-luna |
-| **explore** | Repository intelligence — finds files, detects patterns, creates compressed context | opencode/deepseek-v4-flash |
-| **architect** | Senior engineering decisions — system design, boundaries, technical plans | openai/gpt-5.6-luna |
+| **orchestrator** | Engineering manager — plans, delegates, tracks, gates | openai/gpt-5.6-terra (medium) |
+| **explore** | Repository intelligence — finds files, detects patterns, creates compressed context | openai/gpt-5.6-luna |
+| **architect** | Senior engineering decisions — system design, boundaries, technical plans | openai/gpt-5.6-sol (high) |
+| **research** | Read-only repository research and evidence gathering | openai/gpt-5.6-luna |
 | **build** | Primary implementation — writes production code, tests, refactors | openai/gpt-5.6-luna |
 | **frontend** | UI implementation — design system, impeccable standards, imprint workflow | openai/gpt-5.6-luna |
 | **backend** | API and database implementation | openai/gpt-5.6-luna |
-| **reviewer** | Quality control — plan alignment, system integrity, production readiness | opencode/deepseek-v4-flash |
-| **reviewer-premium** | Tier 3 security and high-risk architecture review | openai/gpt-5.6-terra |
-| **tester** | Test implementation, coverage | opencode/deepseek-v4-flash |
-| **documenter** | Documentation, session memory | opencode/deepseek-v4-flash |
+| **reviewer** | Quality control — plan alignment, system integrity, production readiness | opencode/deepseek-v4-flash-free |
+| **reviewer-premium** | Tier 3 security and high-risk architecture review | openai/gpt-5.6-terra (high) |
+| **tester** | Test implementation, coverage | opencode/deepseek-v4-flash-free |
+| **documenter** | Documentation, session memory | opencode/deepseek-v4-flash-free |
 | **general** | One-off tasks outside the orchestrator workflow — manual escape hatch. Must be selected explicitly via TUI/Tab or `opencode agent set general` (not the fallback agent). | (no override; uses active OpenCode default model) |
 
 > **No custom fallback is configured.** `fallback_model` is not a supported automatic fallback field. If a configured model is unavailable, use OpenCode's current model resolution or manually switch the agent model.
@@ -89,12 +90,30 @@ The orchestrator manages the entire process — it never writes code. It reads p
 ### Review Tiers
 
 - **Tier 1 — Skip formal review.** For docs, styling, simple fixes, and trivial changes. No reviewer agent is dispatched.
-- **Tier 2 — DeepSeek V4 Flash review.** Full formal review for features, API changes, database schema, and architecture decisions. Uses the **reviewer** agent (opencode/deepseek-v4-flash) to verify plan alignment, system integrity, and production readiness.
+- **Tier 2 — DeepSeek V4 Flash review.** Full formal review for features, API changes, database schema, and architecture decisions. Uses the **reviewer** agent (`opencode/deepseek-v4-flash-free`) to verify plan alignment, system integrity, and production readiness.
 - **Tier 3 — Premium review.** Uses the explicit `reviewer-premium` agent for authentication, payments, security, and major security-sensitive redesigns. Uses `openai/gpt-5.6-terra`; swap to a different model in `opencode.jsonc` if the use case demands it.
 
 ### General Agent (Escape Hatch)
 
 The **general** agent has no model override — it uses whatever model OpenCode is running by default. **It is not the fallback agent.** Running `opencode` with no agent flag falls back to the `build` agent (the config has no `default_agent`). To use the general agent, select it explicitly via the TUI/Tab or `opencode agent set general`. Use it for one-off tasks that don't fit the orchestrator flow: quick inspections, ad-hoc scripts, exploratory queries, or anything that doesn't need planning, delegation, and review overhead.
+
+### Research and Explore
+
+**Explore** is the default repository-discovery lane: it finds files, detects patterns, and summarizes context. **Research** is a separate read-only lane for focused evidence gathering. Both are serial by default. Read-only fan-out is allowed only when explicitly bounded by scope, agent count, and deliverables; writers, tests, and reviews remain sequential.
+
+### Opt-In Workflow Skills
+
+`codemap`, `worktrees`, `clonedeps`, and `simplify` are opt-in skills. They are inert unless explicitly invoked. Worktree creation and dependency cloning require confirmation; codemap and simplify must not silently mutate project code or documentation.
+
+### Manual Model Profiles
+
+Quality, Budget, and Security model profiles are manual conventions, not automatic routing. Use the configured assignments as the baseline, record model usage in `/dispatch/MODEL-LOG.md`, and manually switch profiles in `opencode.jsonc` when needed. The exact free identifier is `opencode/deepseek-v4-flash-free`.
+
+Context7 is intentionally not configured. No Context7 MCP integration or API key is required, and this project does not claim Context7 support.
+
+### Explicit Non-Goals
+
+The mandatory Explore → Architect → explicit human confirmation gate remains required for Feature, Architecture, and Security-sensitive work; Architect owns the confirmed blueprint. Implementation writers are dispatched sequentially, `/dispatch/` stays flat, and no oh-my-opencode-slim runtime baggage is added.
 
 ---
 
@@ -160,6 +179,16 @@ Run `/init` to detect, inventory, or scaffold project context. Never overwrites 
 | Skill | Invocation | Purpose |
 |-------|-----------|---------|
 | **explore** | (loaded by explore agent) | Repository exploration — discovers files, detects patterns, summarizes context. Read-only. |
+| **research** | (loaded by research agent) | Focused read-only evidence gathering. |
+
+### Opt-In Workflow Skills
+
+| Skill | Invocation | Purpose |
+|-------|-----------|---------|
+| **codemap** | `/codemap` | Build a project map on request; does not silently mutate code or docs. |
+| **worktrees** | `/worktrees` | Manage isolated worktrees only after explicit confirmation. |
+| **clonedeps** | `/clonedeps` | Clone dependency sources only after explicit confirmation. |
+| **simplify** | `/simplify` | Identify simplification opportunities on request; does not silently mutate code or docs. |
 
 ### Frontend Design
 
@@ -198,7 +227,7 @@ Run `/init` to detect, inventory, or scaffold project context. Never overwrites 
          /remember  (end and start of every session)
 ```
 
-**Budget rule:** Before using a premium model, ask: (1) Is this architecture-level? (2) Will a mistake create technical debt? (3) Is the cheaper model likely insufficient? If no to all three, use the cheaper model. Track usage in /dispatch/MODEL-LOG.md.
+**Quality/Budget/Security convention:** Quality uses the configured reviewer for normal feature review; Budget applies the premium-model questions above and requires model-use logging; Security-sensitive work uses `reviewer-premium`. These are manual conventions, not automatic profile switching. Track usage in `/dispatch/MODEL-LOG.md`.
 
 ---
 
@@ -303,7 +332,7 @@ opencode agent set orchestrator
 Vike Skills builds on excellent open-source work, adapted and extended for our own approach:
 
 - **[JSM Agent Skills](https://github.com/JavaScript-Mastery-Pro/jsm-agent-skill)** (MIT) by JavaScript Mastery — The `/architect`, `/remember`, `/review`, `/recover`, and `/imprint` skills originated there. Their clean, opinionated skill design set the standard for how agent skills should work.
-- **[Superpowers](https://github.com/obra/superpowers)** (MIT) by Jesse Vincent and Prime Radiant — The `/dispatch` skill adapts the subagent-driven-development methodology from Superpowers. The ideas of per-task subagents, automated review loops, and durable progress ledgers originate there.
+- **[oh-my-opencode-slim](https://github.com/alvinunreal/oh-my-opencode-slim)** (MIT) by Alvin Unreal and contributors — Vike Skills' agent-orchestration direction was inspired by its specialized-agent model, delegation patterns, and workflow automation, adapted here into a deliberately lightweight, skills-based system.
 
 Thank you to both projects for their contributions to the agent engineering community.
 

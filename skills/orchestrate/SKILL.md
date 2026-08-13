@@ -40,6 +40,8 @@ For Feature, Architecture, and Security-sensitive tasks, dispatch the `explore` 
 
 For Small tasks, skip exploration unless the codebase is unfamiliar.
 
+Exploration is serial by default. When independent read-only questions justify it, explicitly request bounded fan-out of no more than three exploration/research workers, one level deep. These workers only inspect and return findings; the orchestrator or documenter persists accepted findings. Never fan out implementation, test, reviewer, or documenter writers. Fan-out does not alter the mandatory Explore → Architect → explicit human confirmation sequence for Feature, Architecture, or Security-sensitive work.
+
 ### 3. Plan
 Write to /dispatch/PLAN.md with:
 - What we are building
@@ -67,7 +69,7 @@ For each task, dispatch the appropriate subagent via the Task tool. Give each a 
 - What output is expected
 - Where to write results
 
-For every implementation task, explicitly hand off the Architect's authoritative blueprint and instruct the implementation agent to follow it without deviation. Do not delegate implementation work until the required human confirmation has been received.
+For every implementation task, explicitly hand off the Architect's authoritative blueprint and instruct the implementation agent to follow it without deviation. Do not delegate implementation work until the required human confirmation has been received. Dispatch implementation writers sequentially; read-only exploration/research may run in a bounded fan-out only before Architect and confirmation.
 
 ### 6. Track
 Update /dispatch/TASKS.md as work progresses. Each task has a status: todo / in-progress / done / blocked.
@@ -130,4 +132,6 @@ Review tiers already encode model cost. Tier 1 skips formal review entirely to s
 - You must never overwrite or edit existing project context docs in `context/` — initialization and inventory belong to the `init` skill, and only missing files may be created
 - You must not skip review for Feature or Architecture tasks
 - You must not dispatch multiple implementation subagents in parallel (causes merge conflicts)
+- You must not dispatch test, reviewer, or documenter writers in parallel with implementation or with one another
+- Read-only exploration/research fan-out is opt-in, one level deep, and capped at three workers; serial exploration remains the default
 - You must not create new dispatch structures beyond the flat `/dispatch/` files

@@ -5,7 +5,7 @@ description: Execute implementation plans by dispatching fresh subagents per tas
 
 # Dispatch — Subagent-Driven Development
 
-Execute a plan by dispatching a fresh implementer subagent per task, a task review (spec compliance + code quality) after each, and a broad whole-branch review at the end.
+Execute a plan by dispatching a fresh implementer subagent per task, a task review (spec compliance + code quality) after each, and a broad whole-branch review at the end. Read-only exploration/research is a separate lane from writing.
 
 **Why subagents:** You delegate tasks to specialized agents with isolated context. By precisely crafting their instructions and context, you ensure they stay focused and succeed at their task. They should never inherit your session's context or history — you construct exactly what they need. This also preserves your own context for coordination work.
 
@@ -14,6 +14,8 @@ Execute a plan by dispatching a fresh implementer subagent per task, a task revi
 **Narration:** between tool calls, narrate at most one short line — the ledger and the tool results carry the record.
 
 **Continuous execution:** Do not pause to check in with your human partner between tasks. Execute all tasks from the plan without stopping. The only reasons to stop are: BLOCKED status you cannot resolve, ambiguity that genuinely prevents progress, or all tasks complete. "Should I continue?" prompts and progress summaries waste their time — they asked you to execute the plan, so execute it.
+
+This does not override the mandatory explicit human confirmation before implementation on Feature, Architecture, or Security-sensitive work.
 
 ## When to Use
 
@@ -37,6 +39,10 @@ Do NOT use when tasks are tightly coupled and depend on shared mutable state dur
    h. Mark task complete in /dispatch/TASKS.md, append to /dispatch/COMPLETED.md, log model in /dispatch/MODEL-LOG.md
 5. **After all tasks** — dispatch a final whole-branch code review using the `review` skill's three-layer criteria (plan alignment, system integrity, production readiness)
 6. **Present results** — summary of what was built, what was reviewed, any remaining minor issues
+
+### Exploration lane
+
+Run exploration serially unless the orchestrator explicitly selects bounded fan-out. Fan-out may use at most 3 read-only `explore` or `research` workers, one level deep, for independent questions only. Workers return findings; the orchestrator or documenter persists them. Do not run implementation, test, reviewer, or documenter writers in parallel. Always complete Explore → Architect → explicit human confirmation before implementation, and execute implementation writers sequentially.
 
 ## Handling Implementer Status
 
@@ -123,6 +129,7 @@ Conversation memory does not survive compaction. Track all progress in the flat 
 ## Red Flags
 
 - Do not dispatch multiple implementation subagents in parallel (causes conflicts)
+- Do not dispatch explore, reviewer, or tester agents in parallel with implementation writers; bounded read-only exploration is the sole opt-in fan-out lane
 - Do not ignore subagent questions — answer before letting them proceed
 - Do not let implementer self-review replace actual review (both are needed)
 - Do not loop fixes indefinitely — if the same Critical/Important issue survives two fix attempts, escalate to the developer
