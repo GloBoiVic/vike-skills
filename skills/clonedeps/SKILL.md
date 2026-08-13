@@ -1,37 +1,24 @@
 ---
 name: clonedeps
-description: Opt-in guidance for copying or cloning dependency source at an explicitly pinned revision; requires a complete target plan and human confirmation.
+description: Opt-in plan for copying dependency source at an immutable revision; requires a complete target plan and confirmation immediately before each risky operation.
 ---
 
 # Clone Dependencies
 
-This skill is inert unless explicitly invoked. It helps plan a controlled dependency-source clone or copy; it never fetches, clones, installs, patches, or changes dependencies automatically.
+Use only for an explicit request to clone/copy named dependency source for a stated purpose. It is not ordinary installation, automatic vendoring, or dependency replacement. It never fetches, clones, installs, patches, executes, or changes dependencies automatically.
 
-## When to use
+## Required plan
 
-- Use only when the user explicitly requests dependency-source cloning/copying for a named investigation or development purpose.
-- Do not use for ordinary dependency installation, automatic vendoring, or unreviewed replacement of a project dependency.
+Before any operation, specify and obtain confirmation for:
 
-## Required inputs and outputs
+- **Target/purpose** — receiving project and reason.
+- **Source** — exact repository or local source and host.
+- **Revision** — immutable commit, tag, or digest; never a moving reference.
+- **Destination** — exact path and whether it exists or is non-empty.
+- **Cleanup/recovery** — ownership, retention/removal, and partial-output handling.
 
-Before any operation, record and obtain explicit confirmation for:
+Return exact commands, expected files, validation, cleanup, recovery, resolved revision, and unknowns.
 
-- **Target** — the project/repository receiving the dependency and intended purpose.
-- **Source** — exact repository or local source, including host when relevant.
-- **Revision** — immutable commit, tag, or digest; do not use an unpinned moving reference.
-- **Destination** — exact path and whether it exists or contains files.
-- **Cleanup** — ownership, retention/removal timing, and treatment of partial output.
+## Safety
 
-Return a plan with the exact operation, expected files, validation, cleanup, and recovery steps. Report the resolved revision and any unknowns.
-
-## Safety boundaries
-
-- Human confirmation is required immediately before every fetch, clone, copy, checkout, or destination-changing command.
-- Never request, read, print, store, or transmit credentials, tokens, SSH keys, or private configuration.
-- Never install packages, run lifecycle scripts, execute cloned code, alter lockfiles/manifests, or modify project source unless separately requested and confirmed.
-- Never overwrite a destination, follow an unpinned revision, or delete partial output without explicit confirmation.
-- Prefer local, auditable sources; disclose when a remote source is required.
-
-## Invocation rule
-
-Never invoke this skill automatically. A complete target/source/revision/destination/cleanup plan and explicit human confirmation are prerequisites for any operation.
+Confirm immediately before every fetch, clone, copy, checkout, or destination-changing command. Never read/store/transmit credentials, tokens, keys, or private config; install packages; run lifecycle or cloned code; alter manifests/lockfiles/source; overwrite destinations; or delete partial output without separate explicit confirmation. Prefer local auditable sources and disclose remote use. Never invoke automatically; a complete plan and confirmation are prerequisites.

@@ -1,36 +1,24 @@
 ---
 name: worktrees
-description: Opt-in guidance for planning and safely using Git worktrees; never executes worktree commands automatically.
+description: Opt-in plan for safely isolating Git work in a worktree; requires complete operation details and confirmation immediately before every repository-changing command.
 ---
 
 # Worktrees
 
-This skill is inert unless explicitly invoked. It provides guidance for isolating work in Git worktrees; it does not create, switch, remove, or repair worktrees on its own.
+Use only when the user explicitly requests worktree planning or isolated branches. It is not automatic branch management and never creates, switches, removes, prunes, moves, or repairs worktrees on its own.
 
-## When to use
+## Required plan
 
-- Use when a user explicitly asks for worktree planning or wants isolated branches for a task.
-- Do not use as an automatic branch-management step or as permission to alter a repository.
+Before proposing or executing, specify and obtain confirmation for:
 
-## Required plan and outputs
-
-Before proposing or executing anything, make the user confirm all of the following:
-
-- **Path** — exact worktree directory and whether it already exists.
-- **Branch** — exact branch name and starting revision/branch.
+- **Path** — exact worktree directory and whether it exists.
+- **Branch/revision** — exact branch and starting revision/branch.
 - **Scope** — repository and intended work.
-- **Cleanup** — who removes the worktree/branch, when, and whether uncommitted work must be preserved.
-- **Recovery** — how to locate the worktree, recover uncommitted changes, and handle an interrupted or failed command.
+- **Cleanup** — owner, timing, branch handling, and preservation of uncommitted work.
+- **Recovery** — locating the worktree, recovering changes, and handling interruption/failure.
 
-Return the proposed commands, their expected effects, validation checks, cleanup steps, and recovery steps before execution.
+Return commands, expected effects, validation checks, cleanup, and recovery steps.
 
-## Safety boundaries
+## Safety
 
-- Human confirmation is required immediately before every worktree-affecting command, including `git worktree add`, `remove`, `move`, `prune`, branch creation, and branch deletion.
-- Never guess a path, branch, revision, cleanup policy, or recovery action.
-- Never discard uncommitted changes, force-reset, force-delete, or overwrite an existing path without explicit confirmation.
-- Inspect status and path conflicts safely; do not install tools, use credentials, or contact remotes unless separately requested and confirmed.
-
-## Invocation rule
-
-Never invoke this skill automatically. Guidance alone does not authorize commands; stop until the human confirms the complete plan and each requested operation.
+Confirm immediately before every worktree-affecting command, including `git worktree add|remove|move|prune`, branch creation, and branch deletion. Never guess parameters, discard uncommitted changes, force-reset/delete, overwrite an existing path, install tools, use credentials, or contact remotes without separate explicit authorization. Guidance does not authorize commands; stop until the complete plan and each requested operation are confirmed.

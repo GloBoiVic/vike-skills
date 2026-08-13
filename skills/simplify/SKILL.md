@@ -1,38 +1,18 @@
 ---
 name: simplify
-description: Opt-in guidance for proposing behavior-preserving simplifications after review or an explicit request; never silently rewrites code or architecture.
+description: Opt-in proposal for the smallest behavior-preserving simplification after a review finding or explicit request; never mutates without approval.
 ---
 
 # Simplify
 
-This skill is inert unless explicitly invoked. It identifies and, only after approval, helps implement low-risk simplifications that preserve externally observable behavior.
+Invoke only after a relevant review finding or explicit simplification request. It is not automatic cleanup, design review, or permission to change behavior, APIs, performance, architecture, security controls, or observability.
 
-## When to use
+## Contract
 
-- Use after a review identifies unnecessary complexity or when the user explicitly requests simplification.
-- Do not use as an automatic cleanup pass, a substitute for design review, or a reason to change behavior, APIs, performance characteristics, or architecture.
+1. State the authorizing finding/request.
+2. Inspect the affected implementation, tests, contracts, and architecture guidance.
+3. Propose the smallest diff, explicit non-goals, affected files, behavior-preservation argument, and compatibility/performance/error/migration risks.
+4. Wait for explicit human approval before editing. After approval, make only the agreed change and run applicable tests.
+5. If preservation cannot be demonstrated, stop and report the uncertainty. Architecture-affecting work must complete Explore → Architect → explicit human confirmation and follow the authoritative blueprint.
 
-## Workflow and outputs
-
-1. State the review finding or explicit request that authorizes the proposal.
-2. Inspect the relevant implementation, tests, contracts, and architecture guidance.
-3. Propose the smallest behavior-preserving change, including non-goals and affected files.
-4. Identify compatibility, performance, error-handling, and migration risks.
-5. Wait for explicit approval before editing; after approval, make only the agreed changes and run applicable tests.
-
-Any architecture-affecting simplification must complete the Explore → Architect → explicit human confirmation flow before edits. It must follow the Architect's authoritative blueprint and cannot override or bypass that blueprint.
-
-Return the rationale, proposed diff scope, behavior-preservation argument, validation plan/results, and remaining concerns.
-
-## Safety boundaries
-
-- Never silently rewrite source, tests, configuration, documentation, or generated files.
-- Never override established architecture, contracts, ownership, or review findings without explicit approval from the responsible human.
-- Architecture-affecting simplifications require Explore → Architect → explicit human confirmation before edits and must not override the authoritative blueprint.
-- Never bypass confirmation by hiding a simplification inside an unrelated change.
-- Preserve behavior, public interfaces, error semantics, security controls, and required observability unless a separately approved change says otherwise.
-- If behavior cannot be demonstrated as preserved, stop and report the uncertainty.
-
-## Invocation rule
-
-Never invoke this skill automatically. It requires either a relevant review finding or an explicit simplification request, followed by explicit approval of the proposed change before mutation.
+Return rationale, diff scope, validation results, and remaining concerns. Never silently rewrite source, tests, configuration, documentation, or generated files; never hide an unapproved simplification in unrelated work or override ownership and contracts.

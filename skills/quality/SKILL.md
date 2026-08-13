@@ -1,90 +1,37 @@
 ---
 name: quality
-description: Systematic debugging and failure recovery. Diagnose the cause before fixing; hand feature reviews to review and systemic audits to audit.
+description: Diagnose failures and choose a safe recovery path; reproduce before fixing and escalate feature verification or systemic risk to the canonical skills.
 ---
 
-# Quality — Debugging and Recovery
+# Quality
 
-Use this skill only for debugging a failure or deciding how to recover from a bad implementation session. It does not replace the canonical `review` or `audit` skills.
+Use only for debugging a failure or recovering from a bad implementation session. Use `review` for feature verification and `audit` for codebase-wide security, performance, or practice audits.
 
-## Choose the response
+## Choose a path
 
-- Isolated bug, first or second attempt → **Targeted debugging**
-- Multiple failed fixes have polluted the session → **Hard reset**
-- The implementation is based on a wrong requirement, library, or architecture → **Rethink**
+- **Targeted debugging:** an isolated failure on its first or second fix attempt.
+- **Hard reset:** repeated failed fixes have polluted the session; preserve verified work, write a reset note, stop, and begin clean.
+- **Rethink:** the requirement, library, or architecture assumption is wrong; stop implementation and obtain an agreed new blueprint from `architect`.
 
-For feature verification, use `review`. For security, performance, or codebase-wide audits, use `audit`.
+## Targeted debugging
 
-## Targeted Debugging
+1. Reproduce first. If not reproducible, request expected/actual behavior, steps, and errors.
+2. Isolate the file, line, function, or component and record the evidence.
+3. Trace inputs → transformations → outputs to state the causal root cause, not the symptom.
+4. Describe the minimal fix, change only the agreed scope, then rerun reproduction and relevant tests. Do not stack patches or fix unrelated issues.
+5. For a non-trivial bug, add a regression test or scan for similar patterns and record a prevention action.
 
-### 1. Reproduce and isolate
-
-Reproduce the failure before changing code. If it cannot be reproduced, ask for exact expected behavior, actual behavior, steps, and errors. Isolate the failure to a specific file, line, function, or component.
-
-```text
-Isolated to: [file:line] — [function/component]
-Evidence: [what confirms the location]
-```
-
-### 2. Find the root cause
-
-Trace inputs, transformations, outputs, and the point where actual behavior diverges. State the cause, not the symptom:
+Report:
 
 ```text
-Root cause: [specific actionable explanation]
+Isolated to: [file:line] — [symbol]
+Evidence: [proof]
+Root cause: [cause]
 How found: [analysis path]
-Why this is causal: [cause-effect chain]
+Prevention note: [why it escaped]
+Action: [test, validation, documentation, or guard]
 ```
 
-### 3. Fix and verify
+## Recovery notes
 
-Describe the minimal fix before applying it. Then run the reproduction steps and relevant tests. Do not fix unrelated issues during the same task.
-
-### 4. Prevent recurrence
-
-For non-trivial bugs, add a regression test, scan for similar patterns, and record:
-
-```text
-Prevention note: [what allowed the bug]
-Action: [specific prevention: validation, documentation, test, or guard]
-```
-
-If the fix fails, return to root-cause analysis rather than stacking patches.
-
-## Recovery
-
-### Failure Mode 1 — Specific thing is broken
-
-Use targeted debugging above.
-
-### Failure Mode 2 — Session is polluted
-
-Signs: repeated failed fixes, tangled code, unclear original problem. Save a reset note, preserve only verified useful work, end the session, and start a clean session. Do not keep patching.
-
-```markdown
-## Reset Note — [Feature]
-### What we were building
-### What went wrong
-### What to avoid next time
-### Starting point for the fresh session
-```
-
-### Failure Mode 3 — Foundation is wrong
-
-Name the wrong assumption, explain reality, and stop implementation:
-
-```text
-Assumed: [wrong assumption]
-Reality: [correct understanding]
-Correct approach: [new direction]
-What to discard: [invalid work]
-What to keep: [verified work]
-```
-
-Run `architect` and wait for agreement before rebuilding.
-
-## Handoffs
-
-- After a successful fix: run `review` if behavior or architecture changed.
-- For authentication, payments, security, or systemic risk: escalate to `reviewer-premium` and `audit`.
-- Record discoveries and prevention decisions in `/dispatch/DECISIONS.md`.
+For a polluted session record what was built, what failed, what to avoid, and the clean starting point. For a wrong foundation record assumed/reality/correct approach and what to discard/keep. Do not reset or delete dispatch state. After a successful behavior or architecture change, run `review`; for auth, payments, security, or systemic risk, escalate to premium review and `audit`.

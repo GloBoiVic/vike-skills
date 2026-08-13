@@ -1,144 +1,74 @@
 ---
 name: review
-description: After building a feature, verify it matches what was planned, respects the system architecture and design standards, and is ready for production. Reports issues clearly so the developer decides what to fix.
+description: Evaluate completed work against its plan, system boundaries, and production risks; assign severity and enforce completion gates.
 ---
 
-Building is not done when the code runs. It is done when the code is correct.
+# Review
 
-AI moves fast. Fast means things get built that work on the surface but drift from the architecture, violate the design system, or miss edge cases that matter. This skill catches those things before they compound into bigger problems.
+Review is independent of implementation. Report facts clearly; do not silently expand
+scope. Use the requested gate: **V0** is a Small-task self-check, **R1** is formal
+review for Feature/Architecture work, and **R2** is premium/security review for
+Security-sensitive work or explicitly elevated architecture risk.
 
-Run this after every feature. Before you move on.
+## Benchmark
 
-## What This Skill Does Not Do
+Read the task brief, `/dispatch/PLAN.md`, the Architect's blueprint when present, and
+relevant context. If no acceptance benchmark exists, stop and request one. Inspect the
+changed files, tests, and review package. Never treat implementer self-review as formal
+review.
 
-It does not scope-creep. It reports what it finds and lets the developer decide what matters. The exception is Critical issues — offer to fix those immediately because they block deployment. For everything else, the developer decides.
+## Three layers
 
----
+1. **Plan alignment** — required behavior and decisions are present; scope contains no
+   unapproved additions; blueprint and constraints were followed.
+2. **System integrity** — ownership boundaries, architecture, security, design system,
+   conventions, error patterns, and existing reusable patterns remain intact.
+3. **Production readiness** — tests and validation, errors, loading/empty/missing-data
+   states, edge cases, regressions, warnings, and obvious user-impacting bugs.
 
-## Step 1 — Understand What Should Have Been Built
+For each issue record severity, file/line, evidence, impact, and a concise remedy or
+test to run. Separate spec compliance from task quality in the verdict.
 
-Before reviewing anything, establish the benchmark.
+## Severity and gate
 
-Read in this order:
+- **Critical** — blocks completion: core functionality missing/broken, unsafe behavior,
+  or a boundary failure likely to cause serious downstream harm.
+- **Important** — must be fixed before the task advances: meaningful drift, encountered
+  edge case, inadequate handling, or convention violation.
+- **Minor** — non-blocking cleanup, naming, polish, or optimization.
 
-- The implementation plan from `/architect` if one exists
-- The feature description or task that was given
-- Any relevant context files — architecture boundaries, code standards, design rules
+V0 records the self-check and any unresolved findings. R1/R2 pass only when no Critical
+or Important findings remain (unless the developer explicitly accepts documented risk).
+Report:
 
-If no plan exists, ask the developer to describe what the feature was supposed to do before reviewing. You cannot verify correctness without knowing what correct looks like.
-
----
-
-## Step 2 — Review in Three Layers
-
-### Layer 1 — Does it match the plan?
-
-Compare what was built against what was planned.
-
-Check:
-
-- Every part of the feature description — is it all there?
-- The decisions made during planning — are they reflected in the code?
-- The scope — did the implementation stay within bounds or add things that were not asked for?
-
-Flag anything that was planned but missing. Flag anything that was built but not planned.
-
-### Layer 2 — Does it respect the system?
-
-This is where AI drift most commonly happens. The feature works, but it violates rules that the project depends on.
-
-Check:
-
-- **Architecture boundaries** — does code in the right place own the right responsibilities? No UI logic in API routes. No DB calls in components. Whatever the project's boundaries are — are they respected?
-- **Design system** — are the correct tokens, classes, and patterns used? Any hardcoded values that should be variables? Any raw color classes that should use the design system?
-- **Code standards** — naming conventions, file organization, TypeScript strictness, error handling patterns — do they match what the project established?
-- **Existing patterns** — does this feature introduce a new pattern when an existing one should have been used?
-
-### Layer 3 — Is it production ready?
-
-Check:
-
-- Error handling — what happens when things go wrong? Are errors caught and handled gracefully or does the feature silently fail?
-- Edge cases — empty states, loading states, missing data — are these handled?
-- Console errors — any errors or warnings in the browser or terminal?
-- Obvious bugs — anything that would clearly break for a real user?
-
----
-
-## Step 3 — Report What You Found
-
-After completing all three layers, produce a clear report. Do not bury issues. Do not soften them. Report honestly so the developer can make informed decisions.
-
-```
-## Review — [Feature Name]
-
-### Layer 1 — Plan alignment
-[PASS / ISSUES FOUND]
-[List any gaps between what was planned and what was built]
-
-### Layer 2 — System integrity
-[PASS / ISSUES FOUND]
-[List any architecture, design, or code standard violations]
-
-### Layer 3 — Production readiness
-[PASS / ISSUES FOUND]
-[List any error handling gaps, edge cases, or obvious bugs]
-
-### Summary
-[X] issues found across [Y] layers.
-
-[If no issues: "No issues found. This feature is ready to ship."]
-[If issues: "Resolve the above before moving to the next feature."]
+```md
+## Review — [task]
+Gate: [V0/R1/R2]
+Spec compliance: [PASS/ISSUES]
+Task quality: [PASS/ISSUES]
+Layer 1: [PASS/ISSUES]
+Layer 2: [PASS/ISSUES]
+Layer 3: [PASS/ISSUES]
+Findings: [severity, location, evidence, impact]
+Decision: [PASS/BLOCKED]
 ```
 
----
+## Fix escalation
 
-## Step 4 — Let the Developer Decide
+Return Critical and Important findings to the same builder with paths and covering tests;
+then re-review affected layers. After two failed material fix attempts, escalate to the
+developer. Record Minor findings for follow-up. Do not fix scope on your own.
 
-After presenting the report, let the severity guide your next action:
+Review completion is separate from risky-operation approval. Before any risky mutation,
+the operation-specific skill must obtain confirmation at the point of action, regardless
+of V0, R1, R2, or workflow approval.
 
-- **Critical issues found** — offer to fix them immediately. "I found [N] Critical issues. Should I fix these now before we move on?" Do not wait to be asked for Critical issues that block deployment or break core functionality.
-- **Important or Minor issues found** — stop and wait. Do not start fixing. Do not suggest fixes unless the developer asks.
+## Terminal eligibility
 
-Wait for the developer to:
-
-- Ask you to fix a specific issue
-- Tell you an issue is intentional and can be ignored
-- Confirm everything is resolved and ready to move on
-
-The developer owns the quality decision. You inform it.
-
-### Re-review after fixes
-
-If the developer asks you to fix issues (or you offered to fix Critical issues):
-
-1. Apply the fixes
-2. Re-run only the review layers affected by the changes
-3. Present the updated report
-4. Do not re-run layers that were not touched — that wastes time
-
----
-
-## Severity Guide
-
-Not all issues are equal. Use this to help the developer prioritize:
-
-**Critical — fix before moving on**
-
-- Architecture boundary violations that will break future features
-- Missing error handling that causes silent failures
-- Functionality that was planned but completely missing
-
-**Important — fix soon**
-
-- Design system drift that will cause UI inconsistency
-- Code standard violations that will compound across the codebase
-- Edge cases that a real user will encounter
-
-**Minor — fix when convenient**
-
-- Naming inconsistencies that do not affect behaviour
-- Missing optimisations
-- Style issues that do not affect the design system
-
-Label each issue with its severity so the developer can triage quickly.
+Report a terminal pass only when the requested gate passes and no Critical or Important
+finding, task, blocker, required evidence, or approval remains unresolved. A pass permits
+the documenter to begin closure; it does not itself authorize memory save, reset, or
+report deletion. The documenter must append an idempotent completion record to
+`/dispatch/COMPLETED.md`, inventory and materially summarize any deletable one-off reports,
+run `/remember save`, verify its successful receipt, and record that receipt before cleanup.
+If the save fails, is interrupted, incomplete, or declined, the run remains intact.
