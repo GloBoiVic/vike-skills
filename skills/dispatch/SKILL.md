@@ -7,12 +7,17 @@ description: Execute an approved plan with isolated subagents, sequential writer
 
 Execute an approved plan; do not redesign it. Read all existing flat `/dispatch/` files,
 resume completed tasks, and never re-dispatch them. For non-small work, verify Explore,
-Architect, and recorded human confirmation. The operation-specific skill still confirms
-each risky mutation immediately before it occurs.
+Architect, and recorded human confirmation, then require a valid `READY` receipt from
+`worktrees` before dispatching any writer. The receipt must contain root, path, dedicated
+feature branch, full SHA, scope, status, and recovery; missing, stale, or mismatched
+readiness blocks dispatch. Pass the precise worktree `cwd` and receipt scope to every
+implementation, test, review, and documentation agent. Small work runs in the current
+checkout unless isolation was requested. The operation-specific skill still confirms
+each exact Git command immediately before it occurs.
 
 ## Loop
 
-For each task in plan order: issue a precise brief and report path; dispatch one fresh
+For each task in plan order: issue a precise brief, report path, and worktree cwd; dispatch one fresh
 implementer with the authoritative blueprint; collect its tests, status, concerns, and
 report; package the diff for review; run V0/R1/R2 as classified; return Critical/Important
 findings to the same builder and re-review. After two failed material fixes, escalate.
@@ -45,3 +50,11 @@ never permits reset or deletion. `COMPLETED.md` is the sole durable dispatch led
 
 Redact secrets everywhere and never add folders, indexes, runtime dependencies, or nested
 dispatch structures.
+
+## Git boundaries
+
+Dispatch never performs or implies automatic commits, pushes, merges, branch deletion, or
+worktree cleanup. A writer may not switch checkout or branch. If the READY receipt no longer
+matches the assigned cwd, branch, SHA, or scope, block the task and return to `worktrees`
+for recovery and a newly confirmed setup. Workflow approval and dispatch approval never
+authorize Git operations.

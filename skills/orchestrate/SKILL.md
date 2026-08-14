@@ -22,6 +22,14 @@ For Feature, Architecture, and Security-sensitive work, require:
 Small work may skip that sequence. Do not dispatch an implementation-capable agent before
 confirmation; pause and reconfirm after a material scope or blueprint change.
 
+Before implementation of Feature, Architecture, or Security-sensitive work, require a
+`READY` receipt from `worktrees` for a dedicated local feature branch in a linked
+worktree. The receipt must include root, path, branch, full SHA, scope, status, and
+recovery. Small work uses the current checkout unless isolation was requested. Workflow
+approval never authorizes Git or any other risky operation; `worktrees` must obtain exact
+command confirmation immediately before each Git command. Do not authorize or perform
+automatic commits, pushes, merges, or cleanup.
+
 ## Plan and execution
 
 Write `/dispatch/PLAN.md` with scope, tasks, assignments, class, constraints, and context.
@@ -37,7 +45,8 @@ re-review. After two failed material attempts, escalate. Never declare terminal 
 task, blocker, approval, required evidence, or blocking finding remains unresolved.
 
 Workflow approval never authorizes a risky operation; the operation-specific skill asks
-again immediately before that mutation.
+again immediately before that mutation. Never treat branch/worktree readiness as approval
+for later Git operations.
 
 When all terminal gates pass, the **documenter** owns closure: reconcile and append the
 completion record to `COMPLETED.md`, inventory reports and summarize them materially, run

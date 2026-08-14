@@ -25,7 +25,7 @@ Or clone the repo and point your agent's skills directory at it. In OpenCode, ad
 | **Architecture** | system redesign, cross-cutting refactor | Explore → Architect → human confirmation → build → test | R1 (elevate to R2 when risk warrants) |
 | **Security-sensitive** | auth, authorization, payments, secrets, security redesign | Explore → Architect → human confirmation → build → test | R2 premium/security review |
 
-Classification is not review severity. Feature, Architecture, and Security-sensitive work must pass explicit human confirmation of the Architect's blueprint before any implementation begins; Small work may proceed without a confirmation gate. Gates: **V0** is a Small-task self-check, **R1** is formal review for Feature and Architecture, **R2** is premium/security review for Security-sensitive work or explicitly elevated architecture risk. Critical/Important findings return to the same builder for fixes and re-review; after two failed material fix attempts, escalate to the developer. Minor findings are recorded and carried forward.
+Classification is not review severity. Feature, Architecture, and Security-sensitive work must pass explicit human confirmation of the Architect's blueprint before any implementation begins and must receive a `READY` receipt from `worktrees` for a dedicated local feature branch in a linked worktree. The receipt records root, path, branch, full SHA, scope, status, and recovery. Small work stays in the current checkout unless isolation is requested. Gates: **V0** is a Small-task self-check, **R1** is formal review for Feature and Architecture, **R2** is premium/security review for Security-sensitive work or explicitly elevated architecture risk. Critical/Important findings return to the same builder for fixes and re-review; after two failed material fix attempts, escalate to the developer. Workflow approval never authorizes Git operations.
 
 ### Policy ownership
 
@@ -48,6 +48,7 @@ Classification is not review severity. Feature, Architecture, and Security-sensi
 - All state lives in the flat `/dispatch/` set: `PLAN.md`, `ARCHITECTURE.md`, `TASKS.md`, `DECISIONS.md`, `REVIEW.md`, `MODEL-LOG.md`, `EXPLORATION.md`, `COMPLETED.md`. No nested structures, indexes, or runtime dependencies.
 - Execution continues without check-ins until blocked, a material scope/design change, an operation-level confirmation, an unresolved review conflict, two failed fix attempts, or user interruption.
 - Workflow approval never authorizes a risky operation. The operation-specific skill confirms immediately before each risky mutation.
+- Git isolation is operation-specific: confirm the exact Git command immediately before each command. There are no automatic commits, pushes, merges, or worktree cleanup operations.
 - Secrets are redacted from prompts, reports, and ledgers. `remember` never persists secrets and never resets or deletes dispatch state.
 - `imprint` is optional: it runs only when requested and asks before creating a missing UI registry. There is no required or canonical registry path, no migration policy, and no `init` dependency.
 - `/init` never overwrites or deletes existing files.
@@ -55,12 +56,12 @@ Classification is not review severity. Feature, Architecture, and Security-sensi
 
 ### Agents and models
 
-Assignments live in `opencode.jsonc`, which is the source of truth; swap models there manually. The exact free DeepSeek identifier is `opencode/deepseek-v4-flash-free`.
+Assignments live in `opencode.jsonc`, which is the source of truth; swap models there manually. The `explore` and `documenter` agents use `openai/gpt-5.6-luna-fast`; the exact free DeepSeek identifier remains `opencode/deepseek-v4-flash-free` for reviewer and tester assignments.
 
 | Agent | Role | Model |
 |-------|------|-------|
 | **orchestrator** | Engineering manager — plans, delegates, tracks, gates | openai/gpt-5.6-terra (medium) |
-| **explore** | Repository intelligence — files, patterns, compressed context | openai/gpt-5.6-luna |
+| **explore** | Repository intelligence — files, patterns, compressed context | openai/gpt-5.6-luna-fast |
 | **architect** | Senior engineering decisions — system design, boundaries, plans | openai/gpt-5.6-sol (high) |
 | **research** | Read-only evidence gathering | openai/gpt-5.6-luna |
 | **build** | Primary implementation — code, tests, refactors | openai/gpt-5.6-luna |
@@ -69,7 +70,7 @@ Assignments live in `opencode.jsonc`, which is the source of truth; swap models 
 | **reviewer** | Formal review (R1) — plan alignment, integrity, readiness | opencode/deepseek-v4-flash-free |
 | **reviewer-premium** | Premium/security review (R2) | openai/gpt-5.6-terra (high) |
 | **tester** | Test implementation, coverage | opencode/deepseek-v4-flash-free |
-| **documenter** | Documentation, session memory | opencode/deepseek-v4-flash-free |
+| **documenter** | Documentation, session memory | openai/gpt-5.6-luna-fast |
 | **general** | One-off tasks — escape hatch, selected explicitly | no override (active default model) |
 
 No `default_agent` is configured: running `opencode` with no agent flag falls back to **build**. The **general** agent is not the fallback — select it explicitly.
@@ -93,7 +94,7 @@ No `default_agent` is configured: running `opencode` with no agent flag falls ba
 
 ### Optional
 
-Opt-in skills are inert unless invoked; `worktrees` and `clonedeps` confirm before every repository-changing operation.
+Opt-in skills are inert unless invoked; `worktrees` and `clonedeps` confirm before every relevant operation. Non-small work invokes `worktrees` before writers; Small work remains in the current checkout unless requested otherwise.
 
 | Skill | Invocation | Purpose |
 |-------|-----------|---------|
