@@ -9,11 +9,14 @@ Execute an approved plan; do not redesign it. Read all existing flat `/dispatch/
 resume completed tasks, and never re-dispatch them. For non-small work, verify Explore,
 Architect, and recorded human confirmation, then require a valid `READY` receipt from
 `worktrees` before dispatching any writer. The receipt must contain root, path, dedicated
-feature branch, full SHA, scope, status, and recovery; missing, stale, or mismatched
-readiness blocks dispatch. Pass the precise worktree `cwd` and receipt scope to every
+feature branch, full SHA, scope, status, context, and recovery; missing, stale, or
+mismatched readiness blocks dispatch. Pass the precise worktree `cwd`, context manifest,
+and receipt scope to every
 implementation, test, review, and documentation agent. Small work runs in the current
-checkout unless isolation was requested. The operation-specific skill still confirms
-each exact Git command immediately before it occurs.
+ checkout unless isolation was requested. Read-only Git inspection may run without
+ separate confirmation; the operation-specific skill still confirms each exact
+repository-changing Git command immediately before it occurs. Never assume that
+uncommitted files in another checkout are available in the assigned worktree.
 
 ## Loop
 
@@ -57,4 +60,4 @@ Dispatch never performs or implies automatic commits, pushes, merges, branch del
 worktree cleanup. A writer may not switch checkout or branch. If the READY receipt no longer
 matches the assigned cwd, branch, SHA, or scope, block the task and return to `worktrees`
 for recovery and a newly confirmed setup. Workflow approval and dispatch approval never
-authorize Git operations.
+ authorize repository-changing Git operations.

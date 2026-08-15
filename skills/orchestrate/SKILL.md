@@ -23,12 +23,21 @@ Small work may skip that sequence. Do not dispatch an implementation-capable age
 confirmation; pause and reconfirm after a material scope or blueprint change.
 
 Before implementation of Feature, Architecture, or Security-sensitive work, require a
-`READY` receipt from `worktrees` for a dedicated local feature branch in a linked
-worktree. The receipt must include root, path, branch, full SHA, scope, status, and
-recovery. Small work uses the current checkout unless isolation was requested. Workflow
-approval never authorizes Git or any other risky operation; `worktrees` must obtain exact
-command confirmation immediately before each Git command. Do not authorize or perform
-automatic commits, pushes, merges, or cleanup.
+`READY` receipt from `worktrees` for a dedicated local feature branch. By default this
+branch is created in the current checkout (`mode: feature-branch`); use a linked
+worktree only when the user explicitly requests it. The receipt must include mode, root,
+path, branch, full SHA, scope, status, context, and recovery. Small work uses the current checkout unless isolation was requested. Read-only
+Git inspection may run without separate confirmation; workflow approval never authorizes
+repository-changing Git or any other risky operation. `worktrees` must obtain exact
+command confirmation immediately before each repository-changing Git command. Do not
+authorize or perform automatic commits, pushes, merges, or cleanup.
+
+The READY receipt must prove that every approved plan, blueprint, exploration,
+acceptance criterion, and other required context file exists in the assigned checkout
+or worktree. In feature-branch mode, the assigned checkout is the writers' cwd and no
+copy step is needed. Uncommitted files in another checkout are never implicit context.
+If required context is missing, stop as `BLOCKED` and return to `worktrees` for context
+transfer before dispatching any writer.
 
 ## Plan and execution
 

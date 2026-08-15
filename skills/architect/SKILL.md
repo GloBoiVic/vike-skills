@@ -59,11 +59,12 @@ stop and return the issue to the orchestrator rather than silently changing dire
 The developer must explicitly confirm the blueprint and proposed workflow before any
 implementation begins. Revise and re-present it if they disagree. This workflow approval
 does not authorize Git or other risky mutations: for non-small work, the operation-specific
-`worktrees` skill must establish a dedicated local feature branch in a linked worktree and
-obtain exact confirmation immediately before each Git command. The blueprint must name the
-worktree cwd and isolation scope, but must not be treated as authorization for Git actions.
-Builders may start only after the `READY` receipt records root, path, branch, full SHA,
-scope, status, and recovery. No automatic commit, push, merge, or cleanup is part of the
+`worktrees` skill must establish a dedicated local feature branch, in the current checkout
+by default or in a linked worktree when explicitly requested, and obtain exact confirmation
+immediately before each repository-changing Git command. The blueprint must name the
+assigned cwd and isolation scope, but must not be treated as authorization for Git actions.
+Builders may start only after the `READY` receipt records mode, root, path, branch, full SHA,
+scope, status, context, and recovery. No automatic commit, push, merge, or cleanup is part of the
 blueprint unless separately requested and confirmed operation by operation.
 
 For Small work, do not force this process; the orchestrator may use V0 instead.

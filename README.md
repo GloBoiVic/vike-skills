@@ -25,7 +25,7 @@ Or clone the repo and point your agent's skills directory at it. In OpenCode, ad
 | **Architecture** | system redesign, cross-cutting refactor | Explore → Architect → human confirmation → build → test | R1 (elevate to R2 when risk warrants) |
 | **Security-sensitive** | auth, authorization, payments, secrets, security redesign | Explore → Architect → human confirmation → build → test | R2 premium/security review |
 
-Classification is not review severity. Feature, Architecture, and Security-sensitive work must pass explicit human confirmation of the Architect's blueprint before any implementation begins and must receive a `READY` receipt from `worktrees` for a dedicated local feature branch in a linked worktree. The receipt records root, path, branch, full SHA, scope, status, and recovery. Small work stays in the current checkout unless isolation is requested. Gates: **V0** is a Small-task self-check, **R1** is formal review for Feature and Architecture, **R2** is premium/security review for Security-sensitive work or explicitly elevated architecture risk. Critical/Important findings return to the same builder for fixes and re-review; after two failed material fix attempts, escalate to the developer. Workflow approval never authorizes Git operations.
+Classification is not review severity. Feature, Architecture, and Security-sensitive work must pass explicit human confirmation of the Architect's blueprint before any implementation begins and must receive a `READY` receipt from `worktrees` for a dedicated local feature branch. By default the branch is in the current checkout; linked worktrees are opt-in. The receipt records mode, root, path, branch, full SHA, scope, status, context, and recovery. Small work stays on the current branch unless isolation is requested. Gates: **V0** is a Small-task self-check, **R1** is formal review for Feature and Architecture, **R2** is premium/security review for Security-sensitive work or explicitly elevated architecture risk. Critical/Important findings return to the same builder for fixes and re-review; after two failed material fix attempts, escalate to the developer. Workflow approval never authorizes Git operations.
 
 ### Policy ownership
 
@@ -48,7 +48,7 @@ Classification is not review severity. Feature, Architecture, and Security-sensi
 - All state lives in the flat `/dispatch/` set: `PLAN.md`, `ARCHITECTURE.md`, `TASKS.md`, `DECISIONS.md`, `REVIEW.md`, `MODEL-LOG.md`, `EXPLORATION.md`, `COMPLETED.md`. No nested structures, indexes, or runtime dependencies.
 - Execution continues without check-ins until blocked, a material scope/design change, an operation-level confirmation, an unresolved review conflict, two failed fix attempts, or user interruption.
 - Workflow approval never authorizes a risky operation. The operation-specific skill confirms immediately before each risky mutation.
-- Git isolation is operation-specific: confirm the exact Git command immediately before each command. There are no automatic commits, pushes, merges, or worktree cleanup operations.
+- Git isolation is operation-specific: read-only Git inspection may run without separate confirmation, while repository-changing Git commands require exact confirmation immediately before each command. There are no automatic commits, pushes, merges, or worktree cleanup operations.
 - Secrets are redacted from prompts, reports, and ledgers. `remember` never persists secrets and never resets or deletes dispatch state.
 - `imprint` is optional: it runs only when requested and asks before creating a missing UI registry. There is no required or canonical registry path, no migration policy, and no `init` dependency.
 - `/init` never overwrites or deletes existing files.
@@ -73,7 +73,7 @@ Assignments live in `opencode.jsonc`, which is the source of truth; swap models 
 | **documenter** | Documentation, session memory | openai/gpt-5.6-luna-fast |
 | **general** | One-off tasks — escape hatch, selected explicitly | no override (active default model) |
 
-No `default_agent` is configured: running `opencode` with no agent flag falls back to **build**. The **general** agent is not the fallback — select it explicitly.
+The configured `default_agent` is **orchestrator**. Select **build** for direct implementation of Small tasks, or **general** explicitly for one-off work outside the orchestrated workflow.
 
 ## Skills
 
@@ -99,7 +99,7 @@ Opt-in skills are inert unless invoked; `worktrees` and `clonedeps` confirm befo
 | Skill | Invocation | Purpose |
 |-------|-----------|---------|
 | **codemap** | `/codemap` | Explicitly requested read-only structural map; never mutates. |
-| **worktrees** | `/worktrees` | Plan for safely isolating Git work; confirmation before every command. |
+| **worktrees** | `/worktrees` | Plan a local feature branch by default; linked worktrees are opt-in. Confirmation before each repository-changing command. |
 | **clonedeps** | `/clonedeps` | Plan for copying pinned dependency source; confirmation before every operation. |
 | **simplify** | `/simplify` | Opt-in, behavior-preserving simplification proposal after a review finding or explicit request. |
 | **imprint** | `/imprint` | Optional UI pattern capture. Runs only when requested; asks before creating a missing registry; no required or canonical path. |
