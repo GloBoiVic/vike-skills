@@ -5,7 +5,7 @@ description: Project context discovery and initialization. Detect context/, inve
 
 # Init — Safe Context Bootstrap
 
-`context/index.md` is a compact manifest; context files are the project's source of truth. This skill only discovers and initializes context. Never edit, overwrite, or delete an existing file.
+`context/index.md` is a compact manifest; context files are the project's source of truth. This skill only discovers and initializes context. It does not create or reset `/dispatch/`; orchestration owns dispatch bootstrap. Never edit, overwrite, or delete an existing file.
 
 ## Procedure
 
@@ -33,4 +33,5 @@ Context initialized.
 - Existing files preserved: [list or none]
 - Missing recommended docs: [list or none]
 - Generated docs are starter drafts; refine before relying on them.
+- `/dispatch/`: present | absent — orchestration initializes it only when the request requires tracked work.
 ```

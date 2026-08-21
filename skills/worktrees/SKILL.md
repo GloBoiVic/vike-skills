@@ -54,7 +54,9 @@ Before proposing or executing, specify and obtain confirmation for:
   `feature-branch` because writers use the same checkout. The exact required
   planning/context files must still be listed.
 
-Return commands, expected effects, validation checks, cleanup, and recovery steps.
+Return commands, expected effects, validation checks, cleanup, and recovery steps. When
+dispatched, write only the assigned `READY.md` receipt; do not rewrite the plan,
+exploration, or architecture artifacts.
 The plan must identify a dedicated local feature branch and the exact cwd writers will
 use. A successful setup returns a **READY** receipt containing:
 `mode`, `root`, `path`, `branch`, full `SHA`, `scope`, `status`, `context`, and `recovery`.

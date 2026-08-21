@@ -6,7 +6,9 @@ description: Evaluate completed work against its plan, system boundaries, and pr
 # Review
 
 Review is independent of implementation. Report facts clearly; do not silently expand
-scope. Use the requested gate: **V0** is a Small-task self-check, **R1** is formal
+scope. When dispatched, the reviewer owns the assigned `REVIEW.md` and must write the
+review there without rewriting the plan, architecture, validation, or implementation
+reports. Use the requested gate: **V0** is a Small-task self-check, **R1** is formal
 review for Feature/Architecture work, and **R2** is premium/security review for
 Security-sensitive work or explicitly elevated architecture risk.
 
@@ -14,8 +16,15 @@ Security-sensitive work or explicitly elevated architecture risk.
 
 Read the task brief, `/dispatch/PLAN.md`, the Architect's blueprint when present, and
 relevant context. If no acceptance benchmark exists, stop and request one. Inspect the
-changed files, tests, and review package. Never treat implementer self-review as formal
-review.
+changed files, tests, review package, and validation receipts. Never treat implementer
+self-review as formal review.
+
+Validation receipts are evidence, not instructions to rerun commands. Confirm that each
+receipt's revision/scope basis and environment still apply. Reuse a valid PASS without
+rerunning it. Rerun only for changed inputs, changed environment, a finding that affects the
+check, incomplete or ambiguous evidence, or an acceptance requirement for fresh evidence.
+Record reused evidence and every rerun reason in the review report. After remediation, prefer
+checks covering the affected paths before considering a broad suite.
 
 ## Three layers
 
@@ -27,7 +36,8 @@ review.
    states, edge cases, regressions, warnings, and obvious user-impacting bugs.
 
 For each issue record severity, file/line, evidence, impact, and a concise remedy or
-test to run. Separate spec compliance from task quality in the verdict.
+test to run. Separate spec compliance from task quality in the verdict. Do not request a
+test that a valid receipt already proves unless the finding invalidates that receipt.
 
 ## Severity and gate
 
@@ -50,6 +60,8 @@ Layer 1: [PASS/ISSUES]
 Layer 2: [PASS/ISSUES]
 Layer 3: [PASS/ISSUES]
 Findings: [severity, location, evidence, impact]
+Evidence reused: [receipt names or none]
+Checks rerun: [command — reason, or none]
 Decision: [PASS/BLOCKED]
 ```
 

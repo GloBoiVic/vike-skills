@@ -45,32 +45,35 @@ Classification is not review severity. Feature, Architecture, and Security-sensi
 ### Execution rules
 
 - Writers, testers, reviewers, and documenters run sequentially. Only read-only exploration/research may fan out — bounded, one level, at most three workers.
-- All state lives in the flat `/dispatch/` set: `PLAN.md`, `ARCHITECTURE.md`, `TASKS.md`, `DECISIONS.md`, `REVIEW.md`, `MODEL-LOG.md`, `EXPLORATION.md`, `COMPLETED.md`. No nested structures, indexes, or runtime dependencies.
+- Validation is receipt-based: record the exact command, result, scope, revision or changed-file basis, environment, timestamp, and invalidation conditions. Reviewers and testers reuse a valid PASS instead of rerunning unchanged checks; reruns require changed inputs/environment, affected findings, incomplete evidence, or an explicit fresh-evidence gate. Record reuse or the rerun reason.
+- Active state lives in the small `/dispatch/` control plane (`ACTIVE.md`, `PLAN.md`, `TASKS.md`). Larger efforts may use a descriptive workstream record and role-owned artifacts under `/dispatch/workstreams/`; historical workstreams are not loaded by default.
 - Execution continues without check-ins until blocked, a material scope/design change, an operation-level confirmation, an unresolved review conflict, two failed fix attempts, or user interruption.
 - Workflow approval never authorizes a risky operation. The operation-specific skill confirms immediately before each risky mutation.
 - Git isolation is operation-specific: read-only Git inspection may run without separate confirmation, while repository-changing Git commands require exact confirmation immediately before each command. There are no automatic commits, pushes, merges, or worktree cleanup operations.
 - Secrets are redacted from prompts, reports, and ledgers. `remember` never persists secrets and never resets or deletes dispatch state.
+- When a project contains a `.codegraph/` index, `explore`, `research`, `codemap`, `architect`, and `audit` should use the `codegraph_explore` MCP tool first for structural questions, then verify important or behavioral claims against source. If CodeGraph is unavailable, stale, or the project is not indexed, use the normal read-only tools; indexing remains the user's decision.
+- Dispatch uses a small active control plane plus optional workstream records. The orchestrator owns active planning, each specialist writes only its assigned artifact (`EXPLORATION.md`, `RESEARCH.md`, `ARCHITECTURE.md`, `READY.md`, task report, `VALIDATION.md`, `AUDIT.md`, or `REVIEW.md`), and the documenter owns closure. `/init` initializes context only; orchestration bootstraps `/dispatch/` when tracked work requires it. Small work may skip dispatch.
 - `imprint` is optional: it runs only when requested and asks before creating a missing UI registry. There is no required or canonical registry path, no migration policy, and no `init` dependency.
 - `/init` never overwrites or deletes existing files.
 - Context7 is not configured.
 
 ### Agents and models
 
-Assignments live in `opencode.jsonc`, which is the source of truth; swap models there manually. The `explore` and `documenter` agents use `openai/gpt-5.6-luna-fast`; the exact free DeepSeek identifier remains `opencode/deepseek-v4-flash-free` for reviewer and tester assignments.
+Assignments live in `opencode.jsonc`, which is the source of truth; swap models there manually. The `explore` and `documenter` agents use `openai/gpt-5.6-luna-fast`; the configured DeepSeek identifier is `opencode/deepseek-v4-flash` for reviewer and tester assignments.
 
 | Agent | Role | Model |
 |-------|------|-------|
 | **orchestrator** | Engineering manager — plans, delegates, tracks, gates | openai/gpt-5.6-terra (medium) |
-| **explore** | Repository intelligence — files, patterns, compressed context | openai/gpt-5.6-luna-fast |
+| **explore** | Repository intelligence — files, patterns, compressed context, owned exploration artifact | openai/gpt-5.6-luna-fast |
 | **architect** | Senior engineering decisions — system design, boundaries, plans | openai/gpt-5.6-sol (high) |
-| **research** | Read-only evidence gathering | openai/gpt-5.6-luna |
+| **research** | Read-only evidence gathering; writes only its assigned research artifact | openai/gpt-5.6-luna |
 | **build** | Primary implementation — code, tests, refactors | openai/gpt-5.6-luna |
 | **frontend** | UI implementation — design system, impeccable standards | openai/gpt-5.6-luna |
 | **backend** | API and database implementation | openai/gpt-5.6-luna |
-| **reviewer** | Formal review (R1) — plan alignment, integrity, readiness | opencode/deepseek-v4-flash-free |
+| **reviewer** | Formal review (R1) — plan alignment, integrity, readiness | opencode/deepseek-v4-flash |
 | **reviewer-premium** | Premium/security review (R2) | openai/gpt-5.6-terra (high) |
-| **tester** | Test implementation, coverage | opencode/deepseek-v4-flash-free |
-| **documenter** | Documentation, session memory | openai/gpt-5.6-luna-fast |
+| **tester** | Test implementation, coverage, validation artifact | opencode/deepseek-v4-flash |
+| **documenter** | Closure documentation, completion ledger, session memory | openai/gpt-5.6-luna-fast |
 | **general** | One-off tasks — escape hatch, selected explicitly | no override (active default model) |
 
 The configured `default_agent` is **orchestrator**. Select **build** for direct implementation of Small tasks, or **general** explicitly for one-off work outside the orchestrated workflow.
@@ -85,11 +88,11 @@ The configured `default_agent` is **orchestrator**. Select **build** for direct 
 | **dispatch** | `/dispatch` | Execute an approved plan: fresh implementer per task, sequential writers, review gates, ledgers, bounded fix loops. |
 | **architect** | architect agent | Authoritative implementation blueprint for non-small work, confirmed by the developer before coding. |
 | **init** | `/init` | Discover or scaffold `/context/`; creates `index.md` only when missing. Never overwrites. |
-| **explore** | explore agent | Read-only repository discovery — files, patterns, dependencies, risks, context gaps. |
-| **research** | research agent | Strictly read-only evidence gathering with cited facts and confidence labels. |
+| **explore** | explore agent | Read-only repository discovery; writes only its assigned `EXPLORATION.md`. |
+| **research** | research agent | Read-only evidence gathering; writes only its assigned `RESEARCH.md`. |
 | **review** | `/review` | Three-layer review (plan alignment, system integrity, production readiness) with V0/R1/R2 gates and severity. |
 | **quality** | on demand — debugging | Reproduce, isolate, fix, and prevent; escalate feature review to `review` and systemic audits to `audit`. |
-| **audit** | `/audit` | Read-only systemic audit of security, performance, and practices; the developer owns fix decisions. |
+| **audit** | `/audit` | Read-only systemic audit of security, performance, and practices; writes only its assigned `AUDIT.md`; the developer owns fix decisions. |
 | **remember** | `/remember save` / `/remember restore` | Secret-safe session memory; never resets or deletes dispatch state. |
 
 ### Optional
@@ -119,8 +122,9 @@ Opt-in skills are inert unless invoked; `worktrees` and `clonedeps` confirm befo
 opencode agent set orchestrator
 /init                    # scaffold or discover project context (once)
 > Add a paginated blog with category filtering and search
-# Orchestrator: explore → architect → explicit human confirmation →
-# dispatch build tasks → test → R1 review gate → complete
+# Orchestrator: bootstrap dispatch if needed → explore writes EXPLORATION.md →
+# architect writes ARCHITECTURE.md → explicit human confirmation →
+# worktrees READY → sequential build tasks → validation → R1 review → closure
 /remember save           # end of session
 ```
 

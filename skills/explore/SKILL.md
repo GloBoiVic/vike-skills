@@ -5,13 +5,22 @@ description: Read-only repository exploration that discovers relevant files, pat
 
 # Explore
 
-Inspect and summarize; never modify application code or run mutating operations. Exploration is serial by default. Only when the orchestrator explicitly requests bounded fan-out may up to three independent read-only workers run one level deep; they return findings and dispatch no workers. Combine findings before `architect`; this does not bypass Explore → Architect → explicit human confirmation.
+Inspect and summarize; never modify application code or run mutating operations. When
+dispatched for non-small work, you own the current workstream's `EXPLORATION.md` and
+must write it yourself; the orchestrator and documenter must not rewrite it. Exploration
+is serial by default. Only when the orchestrator explicitly requests bounded fan-out may
+up to three independent read-only workers run one level deep; they return findings and
+dispatch no workers. Combine findings before `architect`; this does not bypass Explore →
+Architect → explicit human confirmation.
 
 ## Workflow
 
 1. Read the brief and its scope. At the project root read `AGENTS.md`, then `context/index.md` when present. Use its descriptions to load only task-relevant context; do not bulk-read `context/`.
-2. Use glob/grep and targeted reads to map relevant files, existing patterns, data flow, dependencies, configuration, risks, and unknowns. Do not reread all `/dispatch/` state supplied by the orchestrator.
-3. Return compressed findings. The orchestrator/documenter may persist them in the approved dispatch record; the explorer itself must not create or alter source or permanent documentation.
+2. If the repository has a `.codegraph/` directory, use the `codegraph_explore` MCP tool first for structural questions (symbols, callers/callees, dependencies, architecture, flows, or likely impact). If MCP is unavailable but shell access is allowed, use the equivalent `codegraph explore "<question>"` command. Treat CodeGraph as an accelerator, not as a substitute for inspecting source when the graph is unavailable, stale, incomplete, or insufficient to answer a behavioral/configuration question.
+3. Use glob/grep and targeted reads to map relevant files, existing patterns, data flow, dependencies, configuration, risks, and unknowns. Do not reread all `/dispatch/` state supplied by the orchestrator.
+4. Write the assigned `EXPLORATION.md` with concise facts, paths, risks, unknowns, and
+context gaps. Do not write architecture decisions, implementation code, or another
+agent's artifact. If no dispatch artifact was assigned, return findings in chat only.
 
 ## Output
 

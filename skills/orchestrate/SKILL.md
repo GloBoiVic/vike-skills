@@ -13,9 +13,21 @@ Classification and review severity are separate.
 ## Intake
 
 Read root `AGENTS.md`, then `context/index.md` when present. Invoke `init` if context is
-absent or stale; selectively load relevant context. Read the existing flat `/dispatch/`
-files before resuming. Ask only outcome-, scope-, acceptance-, security-, or plan-critical
+absent or stale; selectively load relevant context. `/init` initializes project context,
+not dispatch state. Ask only outcome-, scope-, acceptance-, security-, or plan-critical
 questions.
+
+Decide whether this request needs dispatch. Small work may remain outside `/dispatch/`.
+For Feature, Architecture, and Security-sensitive work, check for `/dispatch/` and an
+active workstream. If missing, bootstrap only the minimal control plane and assign a
+human-readable workstream name. A project does not need to provide a feature ID; derive
+an optional filesystem-safe slug from the workstream name only when a separate record is
+useful. Preserve existing history and never treat an absent dispatch directory as an
+error.
+
+When resuming, read `/dispatch/ACTIVE.md`, `/dispatch/PLAN.md`, `/dispatch/TASKS.md`,
+and the current workstream `RECORD.md` when present. Do not load unrelated historical
+workstreams or every report by default.
 
 For Feature, Architecture, and Security-sensitive work, require:
 **Explore → Architect → explicit human confirmation → implementation**.
@@ -41,11 +53,20 @@ transfer before dispatching any writer.
 
 ## Plan and execution
 
-Write `/dispatch/PLAN.md` with scope, tasks, assignments, class, constraints, and context.
-The Architect blueprint is authoritative and must be handed verbatim to implementers.
-Writers, testers, reviewers, and documenters run sequentially. Read-only exploration may
-fan out one level to at most three workers. Track task state in `TASKS.md` and agent/model
-outcomes in `MODEL-LOG.md`; keep the flat dispatch set.
+Write `/dispatch/ACTIVE.md`, `/dispatch/PLAN.md`, and `/dispatch/TASKS.md` as the
+orchestrator-owned control plane. The active manifest names the workstream, current
+phase, owner, required artifact, and next transition. The Architect blueprint is
+authoritative and must be handed verbatim to implementers.
+
+Each specialist owns its assigned dispatch artifact: Explore writes exploration,
+Research writes research when explicitly assigned, Architect writes architecture,
+Worktrees writes readiness, builders write their task reports, testers write validation,
+reviewers write review, and Documenter writes the completion record. Agents may read
+other artifacts but must not rewrite them. Writers, testers, reviewers, and documenters
+run sequentially. Read-only exploration may fan out one level to at most three workers.
+Track task state in `TASKS.md`, concise agent/model outcomes in `MODEL-LOG.md`, and
+validation receipts in the validation or task artifact. Do not create duplicate summaries
+of another agent's authoritative artifact.
 
 ## Review and terminal handoff
 
@@ -57,15 +78,17 @@ Workflow approval never authorizes a risky operation; the operation-specific ski
 again immediately before that mutation. Never treat branch/worktree readiness as approval
 for later Git operations.
 
-When all terminal gates pass, the **documenter** owns closure: reconcile and append the
-completion record to `COMPLETED.md`, inventory reports and summarize them materially, run
-and verify `/remember save`, record its successful receipt in `COMPLETED.md`, then perform
-the allowlisted reset/cleanup. A failed, interrupted, incomplete, or declined save is
-checkpoint-only: do not reset or delete anything. `COMPLETED.md` is the sole durable
-dispatch ledger after closure; reset is retry-safe and never removes unknown/user-authored
-reports.
+When all terminal gates pass, the **documenter** owns closure: create or update the
+current workstream `RECORD.md`, append a compact completion index entry to
+`COMPLETED.md`, inventory reports and summarize them materially, run and verify
+`/remember save`, record its successful receipt, then reset only active control files.
+Detailed role-owned workstream artifacts remain durable. A failed, interrupted,
+incomplete, or declined save is checkpoint-only: do not reset or delete anything.
+Reset is retry-safe and never removes unknown/user-authored reports.
 
 ## Prohibited
 
 - Never write application code or project docs, overwrite context, skip gates, or parallelize writers.
+- Never write another agent's authoritative dispatch artifact; record status in the control
+  plane and return the artifact to its owner when it is missing or materially wrong.
 - Never let a successful memory save alone authorize reset; terminal eligibility and receipt are both required.

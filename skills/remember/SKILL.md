@@ -15,8 +15,10 @@ Never persist or surface secrets: keys, tokens, passwords, codes, private keys, 
 ## Save
 
 On `/remember save`, read `context/index.md` when present, then use the filesystem as source
-of truth. Consult relevant context and, when present, `/dispatch/COMPLETED.md`,
-`DECISIONS.md`, and `TASKS.md`. Do not duplicate facts already in context.
+of truth. Consult relevant context, the active dispatch control plane, and the current
+workstream `RECORD.md` when present. Consult `COMPLETED.md` only when it contains the
+current workstream's closure entry. Do not scan unrelated workstream history or duplicate
+facts already in context.
 
 Capture only what a fresh session needs: files/features built; durable decisions and problems solved; exact current state; next action; and open questions. Do not save a transcript, inferable implementation details, process history, or secrets. Redact again immediately before writing.
 
@@ -50,7 +52,9 @@ terminal cleanup authorization. The documenter must record a successful receipt 
 ## Restore
 
 1. Find root `memory.md`; if absent, say so and suggest `/remember save`.
-2. Read it first, then relevant available dispatch records and `context/index.md`; selectively load indexed context docs. Check root agent-instruction files, but do not scan source code.
+2. Read it first, then the active dispatch control plane and relevant current workstream
+   `RECORD.md`, plus `context/index.md`; selectively load indexed context docs. Check root
+   agent-instruction files, but do not scan source code or unrelated dispatch history.
 3. Redact sensitive information before summarizing.
 4. Do not start work. Report the last session, current state, decisions, and next action, then ask the developer to confirm. If memory is incomplete, state what is missing and ask whether to continue; never guess.
 
