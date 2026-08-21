@@ -46,13 +46,13 @@ Classification is not review severity. Feature, Architecture, and Security-sensi
 
 - Writers, testers, reviewers, and documenters run sequentially. Only read-only exploration/research may fan out — bounded, one level, at most three workers.
 - Validation is receipt-based: record the exact command, result, scope, revision or changed-file basis, environment, timestamp, and invalidation conditions. Reviewers and testers reuse a valid PASS instead of rerunning unchanged checks; reruns require changed inputs/environment, affected findings, incomplete evidence, or an explicit fresh-evidence gate. Record reuse or the rerun reason.
-- Active state lives in the small `/dispatch/` control plane (`ACTIVE.md`, `PLAN.md`, `TASKS.md`). Larger efforts may use a descriptive workstream record and role-owned artifacts under `/dispatch/workstreams/`; historical workstreams are not loaded by default.
+- Active state lives in `/dispatch/ACTIVE.md` plus the selected workstream under `/dispatch/workstreams/<slug>/`. The workstream contains `PLAN.md`, `EXPLORATION.md`, `ARCHITECTURE.md`, `READY.md`, `VALIDATION.md`, and `REVIEW.md`; historical workstreams are not loaded by default.
 - Execution continues without check-ins until blocked, a material scope/design change, an operation-level confirmation, an unresolved review conflict, two failed fix attempts, or user interruption.
 - Workflow approval never authorizes a risky operation. The operation-specific skill confirms immediately before each risky mutation.
 - Git isolation is operation-specific: read-only Git inspection may run without separate confirmation, while repository-changing Git commands require exact confirmation immediately before each command. There are no automatic commits, pushes, merges, or worktree cleanup operations.
 - Secrets are redacted from prompts, reports, and ledgers. `remember` never persists secrets and never resets or deletes dispatch state.
 - When a project contains a `.codegraph/` index, `explore`, `research`, `codemap`, `architect`, and `audit` should use the `codegraph_explore` MCP tool first for structural questions, then verify important or behavioral claims against source. If CodeGraph is unavailable, stale, or the project is not indexed, use the normal read-only tools; indexing remains the user's decision.
-- Dispatch uses a small active control plane plus optional workstream records. The orchestrator owns active planning, each specialist writes only its assigned artifact (`EXPLORATION.md`, `RESEARCH.md`, `ARCHITECTURE.md`, `READY.md`, task report, `VALIDATION.md`, `AUDIT.md`, or `REVIEW.md`), and the documenter owns closure. `/init` initializes context only; orchestration bootstraps `/dispatch/` when tracked work requires it. Small work may skip dispatch.
+- Dispatch uses one active pointer plus one selected workstream. The orchestrator owns `ACTIVE.md` and workstream `PLAN.md`; each specialist writes only its assigned artifact (`EXPLORATION.md`, `RESEARCH.md`, `ARCHITECTURE.md`, `READY.md`, task report, `VALIDATION.md`, `AUDIT.md`, or `REVIEW.md`). The documenter appends root `COMPLETED.md`, clears `ACTIVE.md`, and preserves the closed workstream. `/init` initializes context only; orchestration bootstraps `/dispatch/` when tracked work requires it. Small work may skip dispatch.
 - `imprint` is optional: it runs only when requested and asks before creating a missing UI registry. There is no required or canonical registry path, no migration policy, and no `init` dependency.
 - `/init` never overwrites or deletes existing files.
 - Context7 is not configured.
@@ -85,15 +85,15 @@ The configured `default_agent` is **orchestrator**. Select **build** for direct 
 | Skill | Invocation | Purpose |
 |-------|-----------|---------|
 | **orchestrate** | orchestrator agent | Intake, classification, approval, delegation, tracking, completion gates. Never writes code. |
-| **dispatch** | `/dispatch` | Execute an approved plan: fresh implementer per task, sequential writers, review gates, ledgers, bounded fix loops. |
+| **dispatch** | `/dispatch` | Execute an approved workstream: scoped loading, fresh implementer per task, sequential writers, review gates, bounded fix loops, and terminal reset. |
 | **architect** | architect agent | Authoritative implementation blueprint for non-small work, confirmed by the developer before coding. |
-| **init** | `/init` | Discover or scaffold `/context/`; creates `index.md` only when missing. Never overwrites. |
+| **init** | `/init` | Discover or scaffold `/context/`; creates `index.md` only when missing. Dispatch bootstrap belongs to orchestration. Never overwrites. |
 | **explore** | explore agent | Read-only repository discovery; writes only its assigned `EXPLORATION.md`. |
 | **research** | research agent | Read-only evidence gathering; writes only its assigned `RESEARCH.md`. |
 | **review** | `/review` | Three-layer review (plan alignment, system integrity, production readiness) with V0/R1/R2 gates and severity. |
 | **quality** | on demand — debugging | Reproduce, isolate, fix, and prevent; escalate feature review to `review` and systemic audits to `audit`. |
 | **audit** | `/audit` | Read-only systemic audit of security, performance, and practices; writes only its assigned `AUDIT.md`; the developer owns fix decisions. |
-| **remember** | `/remember save` / `/remember restore` | Secret-safe session memory; never resets or deletes dispatch state. |
+| **remember** | `/remember save` / `/remember restore` | Secret-safe session memory; reads only the selected workstream and never closes dispatch state. |
 
 ### Optional
 
@@ -122,9 +122,11 @@ Opt-in skills are inert unless invoked; `worktrees` and `clonedeps` confirm befo
 opencode agent set orchestrator
 /init                    # scaffold or discover project context (once)
 > Add a paginated blog with category filtering and search
-# Orchestrator: bootstrap dispatch if needed → explore writes EXPLORATION.md →
+# Orchestrator: bootstrap dispatch/workstreams if needed → explore writes
+# workstreams/<slug>/EXPLORATION.md →
 # architect writes ARCHITECTURE.md → explicit human confirmation →
-# worktrees READY → sequential build tasks → validation → R1 review → closure
+# worktrees READY → sequential build tasks → validation → R1 review →
+# append COMPLETED.md → clear ACTIVE.md → preserve closed workstream
 /remember save           # end of session
 ```
 

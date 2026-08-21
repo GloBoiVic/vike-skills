@@ -5,9 +5,10 @@ description: Execute an approved plan with isolated subagents, sequential writer
 
 # Dispatch
 
-Execute an approved plan; do not redesign it. Read the active dispatch control plane and
-the current workstream artifacts needed for the next transition; do not bulk-read
-historical workstreams or reports. Resume completed tasks, and never re-dispatch them.
+Execute an approved plan; do not redesign it. Read `/dispatch/ACTIVE.md` first, then only
+the selected workstream directory and the artifacts required for the next transition. Do
+not bulk-read historical workstreams, legacy dispatch files, or unrelated reports. Resume
+completed tasks, and never re-dispatch them.
 For non-small work, verify Explore,
 Architect, and recorded human confirmation, then require a valid `READY` receipt from
 `worktrees` before dispatching any writer. The receipt must contain root, path, dedicated
@@ -22,28 +23,32 @@ uncommitted files in another checkout are available in the assigned worktree.
 
 ## Loop
 
-For each task in plan order: issue a precise brief, assigned artifact path, and worktree cwd; dispatch one fresh
-implementer with the authoritative blueprint; collect its status, concerns, report, and validation
+For each task in plan order: issue a precise brief, selected workstream root, assigned
+artifact path, required inputs, forbidden dispatch paths, and worktree cwd; dispatch one
+fresh implementer with the authoritative blueprint; collect its status, concerns, report, and validation
 receipts; package the diff for review; run V0/R1/R2 as classified; return Critical/Important
 findings to the same builder and re-review. After two failed material fixes, escalate.
-Record task state in the orchestrator-owned control plane, while each agent writes its
-assigned workstream artifact. Writers, tests, reviews, and documentation are strictly
+Record task state in the workstream `PLAN.md`, while each agent writes its assigned
+workstream artifact. Writers, tests, reviews, and documentation are strictly
 sequential; only bounded, one-level, read-only exploration may fan out to three workers.
 
 ## Dispatch bootstrap and ownership
 
 `/init` initializes project context only. For a non-small request with no `/dispatch/`,
-the orchestrator creates the directory, `ACTIVE.md`, `PLAN.md`, and `TASKS.md`, plus a
-`workstreams/` location only when a separate workstream record is justified. A feature
-ID is optional; use a descriptive workstream name and derive a slug only for a path.
-Small work does not create dispatch state unless tracking is requested.
+the orchestrator creates `/dispatch/ACTIVE.md`, `/dispatch/COMPLETED.md`, and a
+descriptive workstream directory under `/dispatch/workstreams/<slug>/`. The workstream
+contains `PLAN.md`, `EXPLORATION.md`, `ARCHITECTURE.md`, `READY.md`, `VALIDATION.md`,
+and `REVIEW.md`; add `TASK-*.md`, `RESEARCH.md`, or `AUDIT.md` only when needed. A
+feature ID is optional; use a descriptive workstream name and derive a slug only for a
+path. Small work does not create dispatch state unless tracking is requested.
 
-The active control plane is `/dispatch/ACTIVE.md`, `/dispatch/PLAN.md`, and
-`/dispatch/TASKS.md`. The ownership table is authoritative:
+`ACTIVE.md` is the only root pointer to current work. It must identify the selected
+workstream path, phase, owner, required artifact, and next transition. The ownership
+table is authoritative:
 
 | Artifact | Owner |
 |---|---|
-| `ACTIVE.md`, `PLAN.md`, `TASKS.md` | Orchestrator |
+| `ACTIVE.md`, workstream `PLAN.md` | Orchestrator |
 | `EXPLORATION.md` | Explore |
 | `RESEARCH.md` | Research, when assigned |
 | `ARCHITECTURE.md` | Architect |
@@ -52,17 +57,19 @@ The active control plane is `/dispatch/ACTIVE.md`, `/dispatch/PLAN.md`, and
 | `VALIDATION.md` | Tester or check runner |
 | `AUDIT.md` | Audit |
 | `REVIEW.md` | Reviewer |
-| `RECORD.md`, `COMPLETED.md` | Documenter |
+| root `COMPLETED.md` index | Documenter |
 
 An agent may write application files within its approved implementation scope and its
-assigned dispatch artifact only. It may read other artifacts but must not rewrite them,
-change their conclusions, or silently create a replacement. If an owned artifact is
-missing or materially incorrect, stop and return the issue to its owner.
+assigned artifact only. Its brief must name the workstream root, required inputs, and
+forbidden dispatch paths. It may read other artifacts in the selected workstream but
+must not rewrite them, change their conclusions, or silently create a replacement. It
+must not scan unrelated workstreams. If an owned artifact is missing or materially
+incorrect, stop and return the issue to its owner.
 
 ## Validation evidence
 
-Every check that may be reused by a later agent must have a receipt in the task report or
-`REVIEW.md`:
+Every check that may be reused by a later agent must have a receipt in `VALIDATION.md`,
+the assigned task report, or `REVIEW.md`:
 
 ```md
 ### Validation Receipt — [name]
@@ -83,9 +90,9 @@ acceptance gate explicitly requires fresh evidence. Record `Reused evidence: [re
 `Rerun reason: [reason]` in the report. After a fix, prefer targeted validation for affected
 paths; run broad suites only when the change or acceptance criteria justify them.
 
-`MODEL-LOG.md` should record at least `Task`, `Agent`, `Model`, `Outcome`, `Validation`,
-`Reused evidence`, and `Rerun reason`. Keep validation details concise and link to the task
-report or `REVIEW.md` for the full receipt rather than copying long command output.
+The task or validation artifact should record `Task`, `Agent`, `Model`, `Outcome`,
+`Validation`, `Reused evidence`, and `Rerun reason` when applicable. There is no separate
+model ledger. Keep validation details concise rather than copying long command output.
 
 Statuses: `DONE` proceeds to review; `DONE_WITH_CONCERNS` resolves concerns first;
 `NEEDS_CONTEXT` supplies context and re-dispatches; `BLOCKED` escalates or revises the
@@ -97,20 +104,18 @@ Terminal eligibility requires every planned task done, required tests/evidence r
 the applicable review gate passed with no unresolved Critical/Important finding, no
 blocker or pending approval, and no interruption. The documenter then:
 
-1. Reconciles one idempotent completion record in `COMPLETED.md`, including a precise
-   inventory of one-off reports and their material summaries.
+1. Reconciles one idempotent completion entry in root `COMPLETED.md`, including the
+   workstream path, outcome, validation summary, and any deferred work.
 2. Runs `/remember save` and verifies a successful save receipt.
 3. Records that receipt in `COMPLETED.md` before any reset.
-4. Resets only active control files (`ACTIVE.md`, `PLAN.md`, `TASKS.md`, and any
-   explicitly designated active scratch files) to their minimal templates.
-5. Deletes only explicitly designated active scratch reports whose material content is
-   covered by the completion record. Role-owned workstream artifacts, unknown files, and
-   user-authored reports remain.
+4. Clears or resets `ACTIVE.md` so no workstream remains marked active.
+5. Marks the selected workstream closed. Preserve its role-owned artifacts as history;
+   do not delete them merely because the feature is complete.
 
 Steps are retry-safe: an existing completion record, receipt, reset, or deletion is
 recognized rather than duplicated; a failed, incomplete, interrupted, or declined save
 never permits reset or deletion. `COMPLETED.md` is a compact durable completion index;
-the workstream `RECORD.md` and role-owned artifacts preserve the supporting history.
+the closed workstream directory preserves supporting history.
 
 Redact secrets everywhere. Do not add unapproved runtime dependencies or caches; the
 workstream structure described above is the approved dispatch organization.

@@ -15,9 +15,9 @@ Never persist or surface secrets: keys, tokens, passwords, codes, private keys, 
 ## Save
 
 On `/remember save`, read `context/index.md` when present, then use the filesystem as source
-of truth. Consult relevant context, the active dispatch control plane, and the current
-workstream `RECORD.md` when present. Consult `COMPLETED.md` only when it contains the
-current workstream's closure entry. Do not scan unrelated workstream history or duplicate
+of truth. Consult relevant context, `/dispatch/ACTIVE.md`, and only the selected
+workstream's `PLAN.md` and current-phase artifact. Consult root `COMPLETED.md` only when
+the current workstream is closing. Do not scan unrelated workstream history or duplicate
 facts already in context.
 
 Capture only what a fresh session needs: files/features built; durable decisions and problems solved; exact current state; next action; and open questions. Do not save a transcript, inferable implementation details, process history, or secrets. Redact again immediately before writing.
@@ -46,15 +46,16 @@ Last updated: [date and time]
 
 Confirm `Memory saved to memory.md.` and advise `/remember restore`; for updates, say what
 was preserved and added. A failed, interrupted, incomplete, or declined save is never a
-terminal cleanup authorization. The documenter must record a successful receipt in
-`/dispatch/COMPLETED.md` before any terminal reset or report deletion.
+terminal cleanup authorization. The documenter must record a successful receipt in root
+`/dispatch/COMPLETED.md` before clearing `/dispatch/ACTIVE.md` or closing the workstream.
 
 ## Restore
 
 1. Find root `memory.md`; if absent, say so and suggest `/remember save`.
-2. Read it first, then the active dispatch control plane and relevant current workstream
-   `RECORD.md`, plus `context/index.md`; selectively load indexed context docs. Check root
-   agent-instruction files, but do not scan source code or unrelated dispatch history.
+2. Read it first, then `/dispatch/ACTIVE.md` and the selected workstream's `PLAN.md` plus
+   current-phase artifact, then `context/index.md`; selectively load indexed context docs.
+   Check root agent-instruction files, but do not scan source code or unrelated dispatch
+   history.
 3. Redact sensitive information before summarizing.
 4. Do not start work. Report the last session, current state, decisions, and next action, then ask the developer to confirm. If memory is incomplete, state what is missing and ask whether to continue; never guess.
 

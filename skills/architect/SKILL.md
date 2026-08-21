@@ -13,8 +13,9 @@ must write the authoritative blueprint there; do not rewrite `EXPLORATION.md`.
 
 ## Inputs and alignment
 
-Read the request, relevant context, existing patterns, and `/dispatch/EXPLORATION.md`
-when present. Do not ask about facts already documented. Identify only terms whose
+Read the request, relevant context, existing patterns, and the selected workstream's
+`PLAN.md` and `EXPLORATION.md` when present. Do not scan unrelated workstreams or legacy
+dispatch files. Do not ask about facts already documented. Identify only terms whose
 interpretation changes the result; define them and ask the developer to correct them.
 
 When independently inspecting a repository with a `.codegraph/` directory, use the

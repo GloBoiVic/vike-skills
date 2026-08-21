@@ -14,10 +14,11 @@ Security-sensitive work or explicitly elevated architecture risk.
 
 ## Benchmark
 
-Read the task brief, `/dispatch/PLAN.md`, the Architect's blueprint when present, and
-relevant context. If no acceptance benchmark exists, stop and request one. Inspect the
-changed files, tests, review package, and validation receipts. Never treat implementer
-self-review as formal review.
+Read the task brief, the selected workstream's `PLAN.md`, the Architect's blueprint when
+present, and relevant context. Do not scan unrelated workstreams or legacy dispatch
+files. If no acceptance benchmark exists, stop and request one. Inspect the changed files,
+tests, review package, and validation receipts. Never treat implementer self-review as
+formal review.
 
 Validation receipts are evidence, not instructions to rerun commands. Confirm that each
 receipt's revision/scope basis and environment still apply. Reuse a valid PASS without
@@ -80,7 +81,8 @@ of V0, R1, R2, or workflow approval.
 Report a terminal pass only when the requested gate passes and no Critical or Important
 finding, task, blocker, required evidence, or approval remains unresolved. A pass permits
 the documenter to begin closure; it does not itself authorize memory save, reset, or
-report deletion. The documenter must append an idempotent completion record to
-`/dispatch/COMPLETED.md`, inventory and materially summarize any deletable one-off reports,
-run `/remember save`, verify its successful receipt, and record that receipt before cleanup.
-If the save fails, is interrupted, incomplete, or declined, the run remains intact.
+report deletion. The documenter must append an idempotent completion entry to root
+`/dispatch/COMPLETED.md` with the selected workstream path, run `/remember save`, verify
+its successful receipt, and then clear `/dispatch/ACTIVE.md` and close the workstream.
+Completed workstream artifacts remain available as history. If the save fails, is
+interrupted, incomplete, or declined, the run remains intact.

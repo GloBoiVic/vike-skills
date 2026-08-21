@@ -25,9 +25,11 @@ an optional filesystem-safe slug from the workstream name only when a separate r
 useful. Preserve existing history and never treat an absent dispatch directory as an
 error.
 
-When resuming, read `/dispatch/ACTIVE.md`, `/dispatch/PLAN.md`, `/dispatch/TASKS.md`,
-and the current workstream `RECORD.md` when present. Do not load unrelated historical
-workstreams or every report by default.
+When resuming, read `/dispatch/ACTIVE.md` first. Follow its selected workstream path and
+load only that workstream's `PLAN.md` plus the artifact needed for the next transition.
+Do not load unrelated historical workstreams, legacy dispatch files, or every report by
+default. If `ACTIVE.md` is absent, inventory dispatch filenames only, identify active
+versus historical work, and preserve legacy files before creating a new active pointer.
 
 For Feature, Architecture, and Security-sensitive work, require:
 **Explore → Architect → explicit human confirmation → implementation**.
@@ -53,10 +55,11 @@ transfer before dispatching any writer.
 
 ## Plan and execution
 
-Write `/dispatch/ACTIVE.md`, `/dispatch/PLAN.md`, and `/dispatch/TASKS.md` as the
-orchestrator-owned control plane. The active manifest names the workstream, current
-phase, owner, required artifact, and next transition. The Architect blueprint is
-authoritative and must be handed verbatim to implementers.
+Write `/dispatch/ACTIVE.md` and the selected workstream `PLAN.md` as the
+orchestrator-owned control plane. `ACTIVE.md` names the workstream path, current phase,
+owner, required artifact, and next transition. `PLAN.md` contains scope, acceptance
+criteria, ordered tasks, assignments, status, constraints, and task/model metadata. The
+Architect blueprint is authoritative and must be handed verbatim to implementers.
 
 Each specialist owns its assigned dispatch artifact: Explore writes exploration,
 Research writes research when explicitly assigned, Architect writes architecture,
@@ -64,9 +67,9 @@ Worktrees writes readiness, builders write their task reports, testers write val
 reviewers write review, and Documenter writes the completion record. Agents may read
 other artifacts but must not rewrite them. Writers, testers, reviewers, and documenters
 run sequentially. Read-only exploration may fan out one level to at most three workers.
-Track task state in `TASKS.md`, concise agent/model outcomes in `MODEL-LOG.md`, and
-validation receipts in the validation or task artifact. Do not create duplicate summaries
-of another agent's authoritative artifact.
+Track task state and concise agent/model outcomes in the workstream `PLAN.md`, and
+validation receipts in `VALIDATION.md`, the task artifact, or `REVIEW.md`. Do not create
+duplicate summaries of another agent's authoritative artifact.
 
 ## Review and terminal handoff
 
@@ -78,13 +81,12 @@ Workflow approval never authorizes a risky operation; the operation-specific ski
 again immediately before that mutation. Never treat branch/worktree readiness as approval
 for later Git operations.
 
-When all terminal gates pass, the **documenter** owns closure: create or update the
-current workstream `RECORD.md`, append a compact completion index entry to
-`COMPLETED.md`, inventory reports and summarize them materially, run and verify
-`/remember save`, record its successful receipt, then reset only active control files.
-Detailed role-owned workstream artifacts remain durable. A failed, interrupted,
-incomplete, or declined save is checkpoint-only: do not reset or delete anything.
-Reset is retry-safe and never removes unknown/user-authored reports.
+When all terminal gates pass, the **documenter** owns closure: append a compact completion
+entry to root `COMPLETED.md`, include the workstream path and material outcome, run and
+verify `/remember save`, record its successful receipt, then clear `/dispatch/ACTIVE.md`
+and mark the workstream closed. Preserve the closed workstream artifacts. A failed,
+interrupted, incomplete, or declined save is checkpoint-only: do not reset or delete
+anything. Reset is retry-safe and never removes unknown/user-authored reports.
 
 ## Prohibited
 
